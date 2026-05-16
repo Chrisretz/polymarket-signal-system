@@ -66,12 +66,17 @@ def configure_logging() -> LogFormat:
     root.addHandler(handler)
     root.setLevel(level)
 
-    # SQLAlchemy: kun WARN i JSON-tilstand; echo på engine styrer stadig dev-SQL
-    logging.getLogger("sqlalchemy.engine").setLevel(
-        logging.WARNING if log_format == "json" else level,
-    )
-    logging.getLogger("apscheduler").setLevel(level)
-    logging.getLogger("httpx").setLevel(logging.WARNING)
+    # Tredjeparts-biblioteker: hold nede på Railway (log rate limit)
+    noisy_level = logging.WARNING if settings.is_production or log_format == "json" else level
+    for name in (
+        "sqlalchemy.engine",
+        "sqlalchemy",
+        "apscheduler",
+        "apscheduler.scheduler",
+        "httpx",
+        "httpcore",
+    ):
+        logging.getLogger(name).setLevel(noisy_level)
 
     structlog.get_logger(__name__).info(
         "logging_configured",

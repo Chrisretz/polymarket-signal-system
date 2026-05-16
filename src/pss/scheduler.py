@@ -3,12 +3,13 @@
 from __future__ import annotations
 
 import asyncio
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 import structlog
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 
+from pss.config import settings
 from pss.ingestion.market_discovery import discover_markets
 from pss.ingestion.price_snapshot import snapshot_all_active_markets
 from pss.logging_config import configure_logging
@@ -44,6 +45,10 @@ def setup_scheduler(*, run_immediately: bool = True) -> AsyncIOScheduler:
     """
     scheduler = AsyncIOScheduler(timezone="UTC")
     now = datetime.now(timezone.utc) if run_immediately else None
+    # I prod: undgå at discovery + snapshot kører parallelt ved opstart (mindre load + færre logs)
+    snapshot_start = now
+    if now and settings.is_production:
+        snapshot_start = now + timedelta(minutes=5)
 
     scheduler.add_job(
         _run_market_discovery,
@@ -62,7 +67,7 @@ def setup_scheduler(*, run_immediately: bool = True) -> AsyncIOScheduler:
         name="Snapshot prices of active markets",
         max_instances=1,
         coalesce=True,
-        next_run_time=now,
+        next_run_time=snapshot_start,
     )
 
     return scheduler

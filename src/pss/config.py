@@ -2,17 +2,31 @@
 
 from functools import lru_cache
 from typing import Literal, Self
+from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
 from pydantic import Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+# libpq/psycopg2 query params — må ikke sendes til SQLAlchemy+asyncpg connect()
+_LIBPQ_ONLY_QUERY_KEYS = frozenset({"sslmode", "sslrootcert", "sslcert", "sslkey"})
+
+
+def _strip_libpq_query_params(url: str) -> str:
+    parsed = urlparse(url)
+    if not parsed.query:
+        return url
+    query = parse_qs(parsed.query, keep_blank_values=True)
+    filtered = {k: v for k, v in query.items() if k.lower() not in _LIBPQ_ONLY_QUERY_KEYS}
+    new_query = urlencode(filtered, doseq=True)
+    return urlunparse(parsed._replace(query=new_query))
+
 
 def _to_async_database_url(url: str) -> str:
     if url.startswith("postgres://"):
-        return url.replace("postgres://", "postgresql+asyncpg://", 1)
-    if url.startswith("postgresql://") and "+asyncpg" not in url:
-        return url.replace("postgresql://", "postgresql+asyncpg://", 1)
-    return url
+        url = url.replace("postgres://", "postgresql+asyncpg://", 1)
+    elif url.startswith("postgresql://") and "+asyncpg" not in url:
+        url = url.replace("postgresql://", "postgresql+asyncpg://", 1)
+    return _strip_libpq_query_params(url)
 
 
 def _to_sync_database_url(async_url: str) -> str:
