@@ -20,7 +20,7 @@ async def check_db() -> None:
         try:
             conn = await asyncpg.connect(
                 settings.asyncpg_dsn,
-                ssl=False,  # lokal Docker-Postgres bruger ikke TLS
+                ssl=settings.asyncpg_ssl,
             )
             try:
                 pg_version = await conn.fetchval("SELECT version()")

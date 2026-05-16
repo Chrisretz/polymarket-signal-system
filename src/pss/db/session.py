@@ -12,14 +12,7 @@ from sqlalchemy.ext.asyncio import (
 from pss.config import settings
 from pss.db.models import Base
 
-def _asyncpg_connect_args(database_url: str) -> dict[str, object]:
-    """asyncpg bruger ssl=True/False — ikke sslmode i URL."""
-    if "localhost" in database_url or "127.0.0.1" in database_url:
-        return {"ssl": False}
-    return {"ssl": True}
-
-
-_connect_args = _asyncpg_connect_args(settings.database_url)
+_connect_args: dict[str, object] = {"ssl": settings.asyncpg_ssl}
 
 engine: AsyncEngine = create_async_engine(
     settings.database_url,

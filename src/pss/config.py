@@ -1,8 +1,12 @@
 """Applikationskonfiguration fra miljøvariabler (.env)."""
 
+import os
+import ssl
 from functools import lru_cache
 from typing import Literal, Self
 from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
+
+import certifi
 
 from pydantic import Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -74,12 +78,24 @@ class Settings(BaseSettings):
     log_format: Literal["auto", "console", "json"] = "auto"
     environment: Literal["development", "production"] = "development"
     bankroll_usd: float = 10_000.0
+    database_ssl_insecure: bool = False
 
     @model_validator(mode="after")
     def normalize_database_urls(self) -> Self:
         """Railway/Timescale leverer ofte postgres:// — normalisér drivere + SSL."""
         self.database_url = _to_async_database_url(self.database_url)
         self.database_url_sync = _to_sync_database_url(self.database_url)
+        return self
+
+    @model_validator(mode="after")
+    def apply_local_ssl_defaults(self) -> Self:
+        """Mac: Timescale fra laptop fejler ofte cert-verify — kun i development."""
+        if (
+            os.getenv("DATABASE_SSL_INSECURE") is None
+            and self.environment == "development"
+            and self.db_ssl
+        ):
+            self.database_ssl_insecure = True
         return self
 
     @property
@@ -90,6 +106,24 @@ class Settings(BaseSettings):
     def asyncpg_dsn(self) -> str:
         """DSN til asyncpg (uden SQLAlchemy-driver-prefix)."""
         return self.database_url.replace("postgresql+asyncpg://", "postgresql://", 1)
+
+    @property
+    def db_ssl(self) -> bool:
+        """TLS til cloud-DB; slå fra for lokal Docker."""
+        url = self.database_url
+        return "localhost" not in url and "127.0.0.1" not in url
+
+    @property
+    def asyncpg_ssl(self) -> bool | ssl.SSLContext:
+        """SSL til asyncpg/SQLAlchemy — certifi på Mac; Railway bruger samme."""
+        if not self.db_ssl:
+            return False
+        if self.database_ssl_insecure:
+            ctx = ssl.create_default_context()
+            ctx.check_hostname = False
+            ctx.verify_mode = ssl.CERT_NONE
+            return ctx
+        return ssl.create_default_context(cafile=certifi.where())
 
 
 @lru_cache

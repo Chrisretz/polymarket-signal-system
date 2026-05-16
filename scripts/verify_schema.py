@@ -22,7 +22,7 @@ EXPECTED_TABLES = (
 
 
 async def main() -> None:
-    conn = await asyncpg.connect(settings.asyncpg_dsn, ssl=False)
+    conn = await asyncpg.connect(settings.asyncpg_dsn, ssl=settings.asyncpg_ssl)
     try:
         rows = await conn.fetch(
             """

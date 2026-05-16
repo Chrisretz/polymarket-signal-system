@@ -16,6 +16,17 @@ from pss.db.session import AsyncSessionLocal
 logger = structlog.get_logger(__name__)
 
 
+def _is_db_connection_error(exc: BaseException) -> bool:
+    msg = str(exc).lower()
+    return (
+        "connect()" in msg
+        or "sslmode" in msg
+        or "certificate_verify_failed" in msg
+        or "ssl" in msg
+        and "certificate" in msg
+    )
+
+
 def classify_vertical(market: dict[str, Any]) -> str:
     """Klassificér marked til vertikal for strategi-routing."""
     question = (market.get("question") or market.get("title") or "").lower()
@@ -124,6 +135,8 @@ async def discover_markets() -> int:
         markets = await gamma.list_all_active_markets()
 
         async with AsyncSessionLocal() as session:
+            await session.connection()
+
             for m in markets:
                 try:
                     values = _market_values(m)
@@ -155,6 +168,9 @@ async def discover_markets() -> int:
                     await session.execute(stmt)
                     count += 1
                 except Exception as exc:
+                    if count == 0 and _is_db_connection_error(exc):
+                        logger.exception("market_discovery_db_failed", error=str(exc))
+                        raise
                     logger.warning(
                         "market_discovery_skip",
                         market=m.get("conditionId"),
