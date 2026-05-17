@@ -6,7 +6,6 @@ import json
 from datetime import datetime, timezone
 from typing import Any
 
-import httpx
 import structlog
 from sqlalchemy import select
 
@@ -30,55 +29,35 @@ def _parse_outcome_prices(raw: Any) -> tuple[float, float] | None:
         return None
 
 
-async def _fetch_gamma_price_index(gamma: GammaClient) -> dict[str, dict[str, Any]]:
-    """Hent alle aktive markeder fra Gamma og indexér på conditionId.
-
-    Bruger list_markets (pagination) i stedet for get_market per marked,
-    så en fuld snapshot tager ~3-4 min i stedet for mange timer.
-    """
+async def _fetch_gamma_price_index(
+    gamma: GammaClient,
+    *,
+    needed_condition_ids: set[str] | None = None,
+) -> dict[str, dict[str, Any]]:
+    """Hent aktive markeder fra Gamma; stop tidligt når alle DB-markeder er fundet."""
     index: dict[str, dict[str, Any]] = {}
-    offset = 0
-    page_size = 100
+    needed = set(needed_condition_ids) if needed_condition_ids else None
 
-    while True:
-        try:
-            batch = await gamma.list_markets(
-                active=True,
-                closed=False,
-                limit=page_size,
-                offset=offset,
-            )
-        except httpx.HTTPStatusError as exc:
-            if exc.response.status_code == 422:
-                logger.warning(
-                    "gamma_pagination_limit_reached",
-                    offset=offset,
-                    indexed=len(index),
-                )
-                break
-            raise
-
-        if not batch:
-            break
-
+    async for batch in gamma.iter_active_market_pages():
         for item in batch:
             condition_id = item.get("conditionId")
             if condition_id:
                 index[condition_id] = item
 
-        if len(batch) < page_size:
+        if needed is not None and needed.issubset(index.keys()):
+            logger.info(
+                "gamma_price_index_early_complete",
+                indexed=len(index),
+                needed=len(needed),
+            )
             break
-        offset += page_size
 
     logger.info("gamma_price_index_built", markets=len(index))
     return index
 
 
 async def snapshot_all_active_markets() -> int:
-    """Snapshot af alle aktive markeder i DB med friske Gamma-priser.
-
-    Køres hver 5-15 min via scheduler (senere).
-    """
+    """Snapshot af alle aktive markeder i DB med friske Gamma-priser."""
     snapshot_time = datetime.now(timezone.utc)
     count = 0
     skipped = 0
@@ -94,8 +73,13 @@ async def snapshot_all_active_markets() -> int:
             logger.info("snapshot_complete", count=0, reason="no_active_markets")
             return 0
 
+        needed = {m.condition_id for m in active_markets if m.condition_id}
+
         async with GammaClient() as gamma:
-            price_index = await _fetch_gamma_price_index(gamma)
+            price_index = await _fetch_gamma_price_index(
+                gamma,
+                needed_condition_ids=needed,
+            )
 
             for market in active_markets:
                 try:

@@ -12,6 +12,8 @@ import structlog
 logger = structlog.get_logger(__name__)
 
 GAMMA_BASE_URL = "https://gamma-api.polymarket.com"
+# Gamma returnerer 422 når offset + limit overstiger ~10k indexeret
+GAMMA_MAX_MARKET_OFFSET = 10_000
 
 
 class GammaClient:
@@ -52,12 +54,21 @@ class GammaClient:
                 self._last_request_at = time.monotonic()
                 return response.json()
             except httpx.HTTPStatusError as exc:
-                logger.error(
-                    "gamma_api_error",
-                    path=path,
-                    status=exc.response.status_code,
-                    body=exc.response.text[:200],
-                )
+                status = exc.response.status_code
+                if status == 422 and path.rstrip("/").endswith("markets"):
+                    logger.warning(
+                        "gamma_api_pagination_limit",
+                        path=path,
+                        params=params,
+                        body=exc.response.text[:200],
+                    )
+                else:
+                    logger.error(
+                        "gamma_api_error",
+                        path=path,
+                        status=status,
+                        body=exc.response.text[:200],
+                    )
                 raise
 
     async def list_markets(
@@ -89,16 +100,14 @@ class GammaClient:
             return result
         return {}
 
-    async def list_all_active_markets(self) -> list[dict[str, Any]]:
-        """Henter aktive markeder via pagination.
-
-        Gamma API afviser offset over ~10.000 (422). Vi stopper ved den grænse.
-        """
-        all_markets: list[dict[str, Any]] = []
+    async def iter_active_market_pages(
+        self,
+        *,
+        page_size: int = 100,
+    ):
+        """Yield batches af aktive markeder; stop før Gamma offset-grænse."""
         offset = 0
-        page_size = 100
-
-        while True:
+        while offset < GAMMA_MAX_MARKET_OFFSET:
             try:
                 batch = await self.list_markets(
                     active=True,
@@ -111,18 +120,28 @@ class GammaClient:
                     logger.warning(
                         "gamma_pagination_limit_reached",
                         offset=offset,
-                        fetched=len(all_markets),
                     )
                     break
                 raise
 
             if not batch:
                 break
-            all_markets.extend(batch)
+            yield batch
             if len(batch) < page_size:
                 break
             offset += page_size
+        else:
+            logger.warning(
+                "gamma_pagination_limit_reached",
+                offset=offset,
+                reason="max_offset_cap",
+            )
 
+    async def list_all_active_markets(self) -> list[dict[str, Any]]:
+        """Henter aktive markeder via pagination (max ~10k via offset)."""
+        all_markets: list[dict[str, Any]] = []
+        async for batch in self.iter_active_market_pages():
+            all_markets.extend(batch)
         logger.info("fetched_active_markets", count=len(all_markets))
         return all_markets
 
