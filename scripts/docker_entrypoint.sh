@@ -1,13 +1,8 @@
 #!/bin/sh
 set -e
 
-# Railway sætter PORT automatisk; fallback så healthcheck har et mål
-if [ -z "${PORT:-}" ]; then
-  export PORT=8080
-  echo "PSS: PORT ikke sat af host — bruger PORT=8080"
-else
-  echo "PSS: PORT=$PORT"
-fi
+# Railway sætter PORT automatisk på web/worker-services
+echo "PSS: PORT=${PORT:-(ikke sat — health-server bruger 8080 internt)}"
 
 echo "PSS: kører database-migrationer..."
 uv run python scripts/init_db.py

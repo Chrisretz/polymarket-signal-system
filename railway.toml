@@ -6,8 +6,8 @@ builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile"
 
 [deploy]
-# Scheduler eksponerer GET / via health_server.py på PORT
-healthcheckPath = "/"
-healthcheckTimeout = 300
+# Worker: proces skal bare holde sig kørende. HTTP-health gav falsk "Stopping Container".
+# health_server.py kører stadig på PORT til manuel/debug check.
+healthcheckPath = ""
 restartPolicyType = "ALWAYS"
 restartPolicyMaxRetries = 10

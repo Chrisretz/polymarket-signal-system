@@ -90,11 +90,13 @@ Database skal understøtte **TimescaleDB** (hypertables) — standard Railway Po
 
 1. **Database:** [Timescale Cloud](https://www.timescale.com/) (samme DB som lokal `.env`).
 2. **Railway:** Projekt → **Deploy from GitHub** → `Chrisretz/polymarket-signal-system` → `main`.
-3. **Service variables** (se `env.template`):
+3. **Service variables** — åbn **selve worker-servicen** (ikke Project → Shared Variables).
+   Klik `polymarket-signal-system` → fanen **Variables** → Raw Editor eller Add:
    - `DATABASE_URL`, `DATABASE_SSL_INSECURE=true`
    - `ENVIRONMENT=production`, `LOG_FORMAT=json`, `LOG_LEVEL=WARNING`
    - `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`
    - `FRED_API_KEY` (base rates), `BANKROLL_USD=10000`
+   - Sæt **ikke** `PORT` manuelt — Railway injicerer den (medmindre docs siger andet).
 4. Railway bruger `Dockerfile` + `railway.toml` automatisk.
 5. Ved deploy: migrationer (`init_db`) → scheduler med 3 jobs (discovery, snapshot, signal_scan).
 
