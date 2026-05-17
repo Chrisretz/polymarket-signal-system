@@ -6,5 +6,7 @@ builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile"
 
 [deploy]
-restartPolicyType = "ON_FAILURE"
-restartPolicyMaxRetries = 5
+# Scheduler har ingen HTTP-server — slå healthcheck fra (ellers stopper Railway containeren)
+healthcheckPath = ""
+restartPolicyType = "ALWAYS"
+restartPolicyMaxRetries = 10
