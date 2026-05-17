@@ -110,6 +110,9 @@ def setup_scheduler(*, run_immediately: bool = True) -> AsyncIOScheduler:
 async def main() -> None:
     configure_logging()
     health_task = start_health_server_task()
+    # Giv health-server tid til at binde før Railway healthcheck
+    await asyncio.sleep(0.5)
+
     scheduler = setup_scheduler(run_immediately=True)
     scheduler.start()
 
@@ -123,6 +126,7 @@ async def main() -> None:
         "Discovery: hver time. Snapshots: hver 10. min. "
         "Signal-scan: hver time. "
         "Stop med Ctrl+C.",
+        flush=True,
     )
 
     try:
@@ -133,10 +137,9 @@ async def main() -> None:
         scheduler.shutdown(wait=False)
         logger.info("scheduler_stopped")
     finally:
-        if health_task is not None:
-            health_task.cancel()
-            with contextlib.suppress(asyncio.CancelledError):
-                await health_task
+        health_task.cancel()
+        with contextlib.suppress(asyncio.CancelledError):
+            await health_task
 
 
 if __name__ == "__main__":

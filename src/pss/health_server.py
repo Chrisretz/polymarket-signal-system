@@ -9,6 +9,16 @@ import structlog
 
 logger = structlog.get_logger(__name__)
 
+DEFAULT_HEALTH_PORT = 8080
+
+
+def resolve_health_port() -> int:
+    """Port til healthcheck — Railway sætter PORT; ellers 8080 i prod/Docker."""
+    raw = os.environ.get("PORT")
+    if raw:
+        return int(raw)
+    return DEFAULT_HEALTH_PORT
+
 
 async def _handle_client(
     reader: asyncio.StreamReader,
@@ -35,14 +45,14 @@ async def _handle_client(
 
 async def run_health_server(port: int) -> None:
     server = await asyncio.start_server(_handle_client, "0.0.0.0", port)
-    logger.info("health_server_listening", port=port)
+    addrs = ", ".join(str(s.getsockname()) for s in server.sockets or [])
+    logger.info("health_server_listening", port=port, addrs=addrs)
+    print(f"PSS: health-server lytter på 0.0.0.0:{port}", flush=True)
     async with server:
         await server.serve_forever()
 
 
-def start_health_server_task() -> asyncio.Task[None] | None:
-    """Start health-server hvis Railway (eller anden host) sætter PORT."""
-    port_raw = os.environ.get("PORT")
-    if not port_raw:
-        return None
-    return asyncio.create_task(run_health_server(int(port_raw)))
+def start_health_server_task() -> asyncio.Task[None]:
+    """Start health-server (altid — Railway healthcheck kræver HTTP på PORT)."""
+    port = resolve_health_port()
+    return asyncio.create_task(run_health_server(port))
