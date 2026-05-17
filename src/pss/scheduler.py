@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import contextlib
 from datetime import datetime, timedelta, timezone
 
 import structlog
@@ -10,6 +11,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 
 from pss.config import settings
+from pss.health_server import start_health_server_task
 from pss.ingestion.market_discovery import discover_markets
 from pss.ingestion.price_snapshot import snapshot_all_active_markets
 from pss.logging_config import configure_logging
@@ -75,6 +77,7 @@ def setup_scheduler(*, run_immediately: bool = True) -> AsyncIOScheduler:
 
 async def main() -> None:
     configure_logging()
+    health_task = start_health_server_task()
     scheduler = setup_scheduler(run_immediately=True)
     scheduler.start()
 
@@ -96,6 +99,11 @@ async def main() -> None:
         logger.info("scheduler_stopping")
         scheduler.shutdown(wait=False)
         logger.info("scheduler_stopped")
+    finally:
+        if health_task is not None:
+            health_task.cancel()
+            with contextlib.suppress(asyncio.CancelledError):
+                await health_task
 
 
 if __name__ == "__main__":

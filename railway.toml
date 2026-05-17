@@ -6,7 +6,7 @@ builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile"
 
 [deploy]
-# Scheduler har ingen HTTP-server — slå healthcheck fra (ellers stopper Railway containeren)
-healthcheckPath = ""
+# Scheduler eksponerer GET / via health_server.py på PORT
+healthcheckPath = "/"
 restartPolicyType = "ALWAYS"
 restartPolicyMaxRetries = 10
