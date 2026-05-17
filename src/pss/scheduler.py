@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import asyncio
-import contextlib
 import signal
 from datetime import datetime, timedelta, timezone
 
