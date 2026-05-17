@@ -8,5 +8,6 @@ dockerfilePath = "Dockerfile"
 [deploy]
 # Scheduler eksponerer GET / via health_server.py på PORT
 healthcheckPath = "/"
+healthcheckTimeout = 120
 restartPolicyType = "ALWAYS"
 restartPolicyMaxRetries = 10

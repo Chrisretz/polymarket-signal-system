@@ -65,9 +65,12 @@ def setup_scheduler(*, run_immediately: bool = True) -> AsyncIOScheduler:
     scheduler = AsyncIOScheduler(timezone="UTC")
     now = datetime.now(timezone.utc) if run_immediately else None
     # I prod: undgå at discovery + snapshot kører parallelt ved opstart (mindre load + færre logs)
+    discovery_start = now
     snapshot_start = now
     signal_start = now
     if now and settings.is_production:
+        # Giv Railway healthcheck tid til at se HTTP 200 før tung Gamma-pagination
+        discovery_start = now + timedelta(seconds=45)
         snapshot_start = now + timedelta(minutes=5)
         signal_start = now + timedelta(minutes=15)
 
@@ -78,7 +81,7 @@ def setup_scheduler(*, run_immediately: bool = True) -> AsyncIOScheduler:
         name="Discover new and updated markets",
         max_instances=1,
         coalesce=True,
-        next_run_time=now,
+        next_run_time=discovery_start,
     )
 
     scheduler.add_job(

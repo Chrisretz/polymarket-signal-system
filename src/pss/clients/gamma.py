@@ -55,20 +55,19 @@ class GammaClient:
                 return response.json()
             except httpx.HTTPStatusError as exc:
                 status = exc.response.status_code
-                if status == 422 and path.rstrip("/").endswith("markets"):
+                if status == 422 and path == "/markets":
                     logger.warning(
-                        "gamma_api_pagination_limit",
-                        path=path,
-                        params=params,
-                        body=exc.response.text[:200],
+                        "gamma_pagination_limit_reached",
+                        offset=(params or {}).get("offset"),
+                        body=exc.response.text[:120],
                     )
-                else:
-                    logger.error(
-                        "gamma_api_error",
-                        path=path,
-                        status=status,
-                        body=exc.response.text[:200],
-                    )
+                    return []
+                logger.error(
+                    "gamma_api_error",
+                    path=path,
+                    status=status,
+                    body=exc.response.text[:200],
+                )
                 raise
 
     async def list_markets(
@@ -80,6 +79,10 @@ class GammaClient:
         offset: int = 0,
     ) -> list[dict[str, Any]]:
         """Henter liste af markeder med pagination."""
+        if offset >= GAMMA_MAX_MARKET_OFFSET:
+            logger.warning("gamma_pagination_limit_reached", offset=offset, reason="cap")
+            return []
+
         params = {
             "active": str(active).lower(),
             "closed": str(closed).lower(),
@@ -108,21 +111,12 @@ class GammaClient:
         """Yield batches af aktive markeder; stop før Gamma offset-grænse."""
         offset = 0
         while offset < GAMMA_MAX_MARKET_OFFSET:
-            try:
-                batch = await self.list_markets(
-                    active=True,
-                    closed=False,
-                    limit=page_size,
-                    offset=offset,
-                )
-            except httpx.HTTPStatusError as exc:
-                if exc.response.status_code == 422:
-                    logger.warning(
-                        "gamma_pagination_limit_reached",
-                        offset=offset,
-                    )
-                    break
-                raise
+            batch = await self.list_markets(
+                active=True,
+                closed=False,
+                limit=page_size,
+                offset=offset,
+            )
 
             if not batch:
                 break
