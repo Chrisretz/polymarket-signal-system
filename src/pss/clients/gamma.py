@@ -125,10 +125,11 @@ class GammaClient:
                 break
             offset += page_size
         else:
-            logger.warning(
-                "gamma_pagination_limit_reached",
+            # Forventet ved hvert snapshot (~10k markeder) — ikke en fejl; log kun ved DEBUG
+            logger.debug(
+                "gamma_pagination_complete",
                 offset=offset,
-                reason="max_offset_cap",
+                reason="api_offset_cap",
             )
 
     async def list_all_active_markets(self) -> list[dict[str, Any]]:

@@ -52,7 +52,12 @@ async def _fetch_gamma_price_index(
             )
             break
 
-    logger.info("gamma_price_index_built", markets=len(index))
+    missing = len(needed - index.keys()) if needed else 0
+    logger.info(
+        "gamma_price_index_built",
+        markets=len(index),
+        missing_from_gamma=missing,
+    )
     return index
 
 
