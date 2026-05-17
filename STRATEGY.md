@@ -219,6 +219,8 @@ Fire konkrete strategier at starte med. Hver strategi har klar hypotese, eksplic
 
 ### 5.1 Strategi A: Base rate fade
 
+**Operativ dokumentation (v0):** [docs/strategies/base_rate_fade.md](docs/strategies/base_rate_fade.md) — parametre, afvisningsregler og uge 6-review.
+
 **Hypotese:** Polymarket overreagerer på nylige nyheder og priser markeder længere fra historiske base rates end fundamentet retfærdiggør. Mean-reversion mod base rate over 2-14 dage.
 
 **Edge-kilde:** Behavioral. Recency bias og narrative-driven mispricing.

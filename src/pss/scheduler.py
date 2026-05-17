@@ -15,6 +15,7 @@ from pss.health_server import start_health_server_task
 from pss.ingestion.market_discovery import discover_markets
 from pss.ingestion.price_snapshot import snapshot_all_active_markets
 from pss.logging_config import configure_logging
+from pss.signals.pipeline import run_signal_pipeline
 
 logger = structlog.get_logger(__name__)
 
@@ -39,6 +40,22 @@ async def _run_price_snapshot() -> None:
     logger.info("job_finished", job="price_snapshot", snapshots=count)
 
 
+async def _run_signal_scan() -> None:
+    logger.info("job_started", job="signal_scan")
+    try:
+        result = await run_signal_pipeline(notify_telegram=True)
+    except Exception:
+        logger.exception("job_failed", job="signal_scan")
+        raise
+    logger.info(
+        "job_finished",
+        job="signal_scan",
+        inserted=result.inserted,
+        skipped=result.skipped,
+        telegram_sent=result.telegram_sent,
+    )
+
+
 def setup_scheduler(*, run_immediately: bool = True) -> AsyncIOScheduler:
     """Registrér ingestion-jobs.
 
@@ -49,8 +66,10 @@ def setup_scheduler(*, run_immediately: bool = True) -> AsyncIOScheduler:
     now = datetime.now(timezone.utc) if run_immediately else None
     # I prod: undgå at discovery + snapshot kører parallelt ved opstart (mindre load + færre logs)
     snapshot_start = now
+    signal_start = now
     if now and settings.is_production:
         snapshot_start = now + timedelta(minutes=5)
+        signal_start = now + timedelta(minutes=15)
 
     scheduler.add_job(
         _run_market_discovery,
@@ -72,6 +91,16 @@ def setup_scheduler(*, run_immediately: bool = True) -> AsyncIOScheduler:
         next_run_time=snapshot_start,
     )
 
+    scheduler.add_job(
+        _run_signal_scan,
+        trigger=IntervalTrigger(hours=1),
+        id="signal_scan",
+        name="Scan for base rate fade signals",
+        max_instances=1,
+        coalesce=True,
+        next_run_time=signal_start,
+    )
+
     return scheduler
 
 
@@ -89,6 +118,7 @@ async def main() -> None:
     print(
         "PSS scheduler kører (UTC). "
         "Discovery: hver time. Snapshots: hver 10. min. "
+        "Signal-scan: hver time. "
         "Stop med Ctrl+C.",
     )
 

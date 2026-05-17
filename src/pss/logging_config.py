@@ -66,16 +66,12 @@ def configure_logging() -> LogFormat:
     root.addHandler(handler)
     root.setLevel(level)
 
-    # Tredjeparts-biblioteker: hold nede på Railway (log rate limit)
+    # Gamma-pagination + bulk INSERT = tusindvis af linjer — hold ude af terminalen
+    for name in ("httpx", "httpcore", "sqlalchemy.engine"):
+        logging.getLogger(name).setLevel(logging.WARNING)
+
     noisy_level = logging.WARNING if settings.is_production or log_format == "json" else level
-    for name in (
-        "sqlalchemy.engine",
-        "sqlalchemy",
-        "apscheduler",
-        "apscheduler.scheduler",
-        "httpx",
-        "httpcore",
-    ):
+    for name in ("sqlalchemy", "apscheduler", "apscheduler.scheduler"):
         logging.getLogger(name).setLevel(noisy_level)
 
     structlog.get_logger(__name__).info(

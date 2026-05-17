@@ -4,6 +4,7 @@ Kvantitativt tradingsystem til Polymarket prediction markets.
 
 - [STRATEGY.md](STRATEGY.md) — strategi, edge-hypoteser, risk
 - [IMPLEMENTATION.md](IMPLEMENTATION.md) — teknisk implementation og ugeplan
+- [docs/strategies/base_rate_fade.md](docs/strategies/base_rate_fade.md) — strategi A (v0, drift og review)
 
 ## Lokal opsætning
 
@@ -80,28 +81,30 @@ Alle secrets og lokale indstillinger ligger i **`.env`** i projektroden (filen c
 
 ## Deploy til Railway (Uge 2, Dag 5)
 
-PSS kører i skyen som **én worker**: scheduler (discovery + snapshots 24/7).  
+PSS kører i skyen som **én worker**: scheduler (discovery + snapshots + signal-scan 24/7).  
 Database skal understøtte **TimescaleDB** (hypertables) — standard Railway Postgres uden extension er ikke nok.
+
+**Vigtigt:** Kør kun scheduler **ét sted** (Railway *eller* lokal `uv run python -m pss.scheduler`).
 
 ### Anbefalet opsætning
 
-1. **Database:** [Timescale Cloud](https://www.timescale.com/) (eller anden Postgres med `timescaledb`-extension). Kopiér connection string.
-2. **Railway:** Nyt projekt → **Deploy from GitHub** (dette repo).
+1. **Database:** [Timescale Cloud](https://www.timescale.com/) (samme DB som lokal `.env`).
+2. **Railway:** Projekt → **Deploy from GitHub** → `Chrisretz/polymarket-signal-system` → `main`.
 3. **Service variables** (se `env.template`):
-   - `DATABASE_URL` = connection string fra Timescale
-   - `ENVIRONMENT=production`
-   - `LOG_FORMAT=json`
-   - `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` (valgfrit men anbefalet)
+   - `DATABASE_URL`, `DATABASE_SSL_INSECURE=true`
+   - `ENVIRONMENT=production`, `LOG_FORMAT=json`, `LOG_LEVEL=WARNING`
+   - `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`
+   - `FRED_API_KEY` (base rates), `BANKROLL_USD=10000`
 4. Railway bruger `Dockerfile` + `railway.toml` automatisk.
-5. Ved deploy: migrationer (`init_db`) → scheduler starter.
+5. Ved deploy: migrationer (`init_db`) → scheduler med 3 jobs (discovery, snapshot, signal_scan).
 
 ### Verificér deploy
 
 I Railway → **Deployments** → **View logs**. Forvent JSON-linjer:
 
 - `logging_configured`
-- `scheduler_started`
-- `job_finished` for `market_discovery` og `price_snapshot`
+- `scheduler_started` (3 jobs)
+- `job_finished` for `market_discovery`, `price_snapshot`, `signal_scan`
 
 ### Lokal test af Docker-image (valgfrit)
 
