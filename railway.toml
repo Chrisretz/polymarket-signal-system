@@ -1,13 +1,10 @@
 # Railway: https://docs.railway.com/reference/config-as-code
-# Opret Postgres (Timescale) separat og sæt DATABASE_URL på worker-servicen.
+# Healthcheck slået fra i railway.json (worker/scheduler — ikke HTTP-service).
 
 [build]
 builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile"
 
 [deploy]
-# Worker: proces skal bare holde sig kørende. HTTP-health gav falsk "Stopping Container".
-# health_server.py kører stadig på PORT til manuel/debug check.
-healthcheckPath = ""
 restartPolicyType = "ALWAYS"
 restartPolicyMaxRetries = 10

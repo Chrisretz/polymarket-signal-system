@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import contextlib
+import signal
 from datetime import datetime, timedelta, timezone
 
 import structlog
@@ -11,13 +12,21 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 
 from pss.config import settings
-from pss.health_server import start_health_server_task
+from pss.health_server import resolve_health_port, run_health_server
 from pss.ingestion.market_discovery import discover_markets
 from pss.ingestion.price_snapshot import snapshot_all_active_markets
 from pss.logging_config import configure_logging
 from pss.signals.pipeline import run_signal_pipeline
 
 logger = structlog.get_logger(__name__)
+
+
+def _install_signal_logging() -> None:
+    def _on_sigterm(*_args: object) -> None:
+        print("PSS: modtog SIGTERM (typisk Railway deploy/omstart)", flush=True)
+        logger.info("sigterm_received")
+
+    signal.signal(signal.SIGTERM, _on_sigterm)
 
 
 async def _run_market_discovery() -> None:
@@ -57,19 +66,13 @@ async def _run_signal_scan() -> None:
 
 
 def setup_scheduler(*, run_immediately: bool = True) -> AsyncIOScheduler:
-    """Registrér ingestion-jobs.
-
-    Args:
-        run_immediately: Kør begge jobs én gang ved opstart (efter genstart).
-    """
+    """Registrér ingestion-jobs."""
     scheduler = AsyncIOScheduler(timezone="UTC")
     now = datetime.now(timezone.utc) if run_immediately else None
-    # I prod: undgå at discovery + snapshot kører parallelt ved opstart (mindre load + færre logs)
     discovery_start = now
     snapshot_start = now
     signal_start = now
     if now and settings.is_production:
-        # Giv Railway healthcheck tid til at se HTTP 200 før tung Gamma-pagination
         discovery_start = now + timedelta(seconds=45)
         snapshot_start = now + timedelta(minutes=5)
         signal_start = now + timedelta(minutes=15)
@@ -107,12 +110,8 @@ def setup_scheduler(*, run_immediately: bool = True) -> AsyncIOScheduler:
     return scheduler
 
 
-async def main() -> None:
-    configure_logging()
-    health_task = start_health_server_task()
-    # Giv health-server tid til at binde før Railway healthcheck
-    await asyncio.sleep(0.5)
-
+async def _run_scheduler_loop() -> None:
+    """Hold processen i live og kør APScheduler-jobs."""
     scheduler = setup_scheduler(run_immediately=True)
     scheduler.start()
 
@@ -124,22 +123,30 @@ async def main() -> None:
     print(
         "PSS scheduler kører (UTC). "
         "Discovery: hver time. Snapshots: hver 10. min. "
-        "Signal-scan: hver time. "
-        "Stop med Ctrl+C.",
+        "Signal-scan: hver time.",
         flush=True,
     )
 
     try:
         while True:
             await asyncio.sleep(3600)
-    except (KeyboardInterrupt, asyncio.CancelledError):
+    finally:
         logger.info("scheduler_stopping")
         scheduler.shutdown(wait=False)
         logger.info("scheduler_stopped")
-    finally:
-        health_task.cancel()
-        with contextlib.suppress(asyncio.CancelledError):
-            await health_task
+
+
+async def main() -> None:
+    configure_logging()
+    _install_signal_logging()
+
+    port = resolve_health_port()
+    print(f"PSS: starter worker (health på port {port})…", flush=True)
+
+    await asyncio.gather(
+        run_health_server(port),
+        _run_scheduler_loop(),
+    )
 
 
 if __name__ == "__main__":
