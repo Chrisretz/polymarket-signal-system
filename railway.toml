@@ -1,9 +1,8 @@
-# Railway: https://docs.railway.com/reference/config-as-code
-# Healthcheck slået fra i railway.json (worker/scheduler — ikke HTTP-service).
-
-[build]
-builder = "DOCKERFILE"
-dockerfilePath = "Dockerfile"
+# Railway deploy-politik (delt). Dockerfile vælges per service via config-as-code:
+#   - polymarket-signal-system → railway.json eller railway.toml (Dockerfile)
+#   - pss-dashboard          → railway.dashboard.json (Dockerfile.dashboard)
+#
+# Sæt IKKE dockerfilePath her — det kan overskrive dashboard-servicen.
 
 [deploy]
 restartPolicyType = "ALWAYS"
