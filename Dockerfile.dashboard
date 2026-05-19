@@ -1,0 +1,24 @@
+FROM python:3.11-slim-bookworm
+
+WORKDIR /app
+
+COPY --from=ghcr.io/astral-sh/uv:0.11 /uv /usr/local/bin/uv
+
+ENV UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy \
+    PYTHONUNBUFFERED=1 \
+    ENVIRONMENT=production \
+    LOG_FORMAT=json
+
+COPY pyproject.toml uv.lock README.md ./
+COPY src ./src
+COPY .streamlit ./.streamlit
+COPY scripts/docker_dashboard_entrypoint.sh ./scripts/
+
+RUN uv sync --frozen --no-dev
+
+RUN chmod +x /app/scripts/docker_dashboard_entrypoint.sh
+
+EXPOSE 8501
+
+ENTRYPOINT ["/app/scripts/docker_dashboard_entrypoint.sh"]
