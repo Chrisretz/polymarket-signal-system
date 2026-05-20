@@ -49,7 +49,7 @@ df = pd.DataFrame(
 )
 st.dataframe(
     df,
-    use_container_width=True,
+    width="stretch",
     hide_index=True,
     column_config={
         "polymarket": st.column_config.LinkColumn(

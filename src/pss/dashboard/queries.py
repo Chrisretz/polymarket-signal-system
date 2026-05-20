@@ -106,14 +106,11 @@ def fetch_signals(
         rows = session.execute(q).all()
         out: list[SignalRow] = []
         for s, question, slug, raw_meta in rows:
-            meta = s.signal_metadata or {}
-            url = meta.get("polymarket_url") if isinstance(meta.get("polymarket_url"), str) else None
-            if not url:
-                url = polymarket_market_url(
-                    slug=slug,
-                    raw_metadata=raw_meta,
-                    question=str(question or ""),
-                )
+            url = polymarket_market_url(
+                slug=slug,
+                raw_metadata=raw_meta,
+                question=str(question or ""),
+            )
             out.append(
                 SignalRow(
                     id=int(s.id),

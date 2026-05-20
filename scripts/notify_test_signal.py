@@ -24,10 +24,12 @@ async def main() -> None:
             "question": "PSS test — Telegram signal-format",
             "base_rate_category": "fed_hold",
             "yes_price": 0.70,
+            "polymarket_url": "https://polymarket.com/event/fed-decision-in-october",
         },
     )
     try:
-        print(format_signal_message(demo, signal_id=0))
+        body, mode = format_signal_message(demo, signal_id=0)
+        print(body, f"(parse_mode={mode})")
         print("---")
         await notify_new_signals([(demo, 0)])
     except TelegramNotConfiguredError as exc:

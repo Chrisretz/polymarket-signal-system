@@ -38,7 +38,7 @@ df = pd.DataFrame(
         for r in rows
     ],
 )
-st.dataframe(df, use_container_width=True, hide_index=True)
+st.dataframe(df, width="stretch", hide_index=True)
 
 for r in rows[:10]:
     with st.expander(f"#{r.id} · {r.entry_type} · {r.created_at.date()}"):

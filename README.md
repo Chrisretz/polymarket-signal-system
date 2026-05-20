@@ -4,6 +4,7 @@ Kvantitativt tradingsystem til Polymarket prediction markets.
 
 - [STRATEGY.md](STRATEGY.md) — strategi, edge-hypoteser, risk
 - [IMPLEMENTATION.md](IMPLEMENTATION.md) — teknisk implementation og ugeplan
+- [PROGRESS.md](PROGRESS.md) — **hvilke uger er implementeret** (✅ / 🟡 / ⬜)
 - [docs/strategies/base_rate_fade.md](docs/strategies/base_rate_fade.md) — strategi A (v0, drift og review)
 
 ## Lokal opsætning
@@ -116,3 +117,44 @@ docker run --env-file .env pss-scheduler
 ```
 
 Kræver at `.env` peger på en reachable database (ikke `localhost` fra containerens perspektiv).
+
+## Dashboard (Uge 9)
+
+Streamlit-UI mod samme database som scheduler (`.env` med `DATABASE_URL`).
+
+```bash
+uv run streamlit run src/pss/dashboard/app.py
+```
+
+Åbner typisk `http://localhost:8501` — sider: **Signaler**, **Positioner**, **Journal**, **Performance** (drawdown-alerts på forsiden og under Performance).
+
+Se [PROGRESS.md](PROGRESS.md) for status per uge.
+
+### Dashboard online (Railway)
+
+Opret en **anden Railway-service** i samme projekt (scheduler og dashboard skal ikke dele én container):
+
+1. **New Service** → samme GitHub-repo → branch `main`.
+2. **Settings → Build:** `Dockerfile Path` = **`Dockerfile.dashboard`** (præcis det — ikke `Dockerfile`).  
+   **Settings → Deploy → Config-as-code:** `railway.dashboard.json` (valgfrit, healthcheck til Streamlit).
+3. Efter deploy: **View logs** skal vise `PSS STREAMLIT DASHBOARD` — **ikke** `PSS: starter scheduler`.  
+   Hvis browseren kun viser `ok`, kører forkert image (scheduler-healthcheck).
+4. **Variables** (samme som worker, minus scheduler-specifikke):
+   - `DATABASE_URL`, `DATABASE_SSL_INSECURE=true`
+   - `ENVIRONMENT=production`, `BANKROLL_USD=10000`
+   - Sæt **ikke** `PORT` manuelt.
+5. **Networking → Generate domain** (fx `pss-dashboard.up.railway.app`).
+6. Åbn URL fra telefon/anden PC.
+
+Scheduler-serviceen beholder `Dockerfile` + `docker_entrypoint.sh` uændret.
+
+## Telegram: link til Polymarket
+
+Nye signaler inkluderer **«Åbn marked på Polymarket»** (HTML-link) når `markets.slug` findes i DB.  
+URL gemmes også i `signal_metadata.polymarket_url` og vises i dashboard under **Signaler**.
+
+Test lokalt:
+
+```bash
+uv run python scripts/notify_test_signal.py
+```

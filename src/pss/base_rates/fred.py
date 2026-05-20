@@ -61,3 +61,31 @@ class FredClient:
             points.append((obs_date, value))
         logger.info("fred_observations_fetched", series_id=series_id, count=len(points))
         return points
+
+    async def fetch_latest_observation(
+        self,
+        series_id: str,
+    ) -> tuple[date, float] | None:
+        """Seneste observation (sort desc, limit 1)."""
+        params = {
+            "series_id": series_id,
+            "api_key": self._api_key,
+            "file_type": "json",
+            "sort_order": "desc",
+            "limit": 1,
+        }
+        resp = await self._client.get("/series/observations", params=params)
+        resp.raise_for_status()
+        rows = resp.json().get("observations", [])
+        if not rows:
+            return None
+        row = rows[0]
+        raw = row.get("value")
+        if raw in (None, "."):
+            return None
+        try:
+            value = float(raw)
+        except ValueError:
+            return None
+        obs_date = datetime.strptime(row["date"], "%Y-%m-%d").date()
+        return obs_date, value

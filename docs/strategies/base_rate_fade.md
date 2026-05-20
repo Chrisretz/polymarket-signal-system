@@ -50,6 +50,8 @@ Disse regler kommer fra uge 6 manuelt review. **Ingen position** — heller ikke
 
 | Afvis hvis | Eksempel fra review |
 |------------|---------------------|
+| Base rate `source = expert_prior_v0` | ECB/BOJ 58 % hold — **ingen signaler** (filtreret i strategi) |
+| CB-møde uden FRED forward-proxy | Kræver `FRED_API_KEY` + `forward_implied_v0` |
 | Forkert centralbank-kategori | BOJ-spørgsmål med `fed_hold` (løst i classifier v2) |
 | Spørgsmål om **cut/hike**, men kategori er **hold** | «BOJ decreases rates» vs `boj_hold` |
 | Granulært bps-outcome | «ECB announce 50+ bps decrease» — ikke samme som aggregeret `ecb_cut` |
@@ -62,7 +64,32 @@ Disse regler kommer fra uge 6 manuelt review. **Ingen position** — heller ikke
 
 ---
 
-## 4. Classifier (base rates)
+## 4. Fair value: centralbankmøder
+
+**Kode:** `src/pss/base_rates/cb_meeting_fair.py`
+
+For kategorier `fed_*`, `ecb_*`, `boj_*` bruges **ikke** statiske expert priors til fair value eller signaler:
+
+| Kilde | Brug |
+|-------|------|
+| `expert_prior_v0` (DB) | Klassifikation/seed kun — **blokeret** for `base_rate_fade` |
+| `forward_implied_v0` | Policy rate vs 3M money-market proxy fra FRED |
+
+| Institution | Policy (FRED) | Forward-proxy |
+|-------------|---------------|---------------|
+| ECB | `ECBDFR` | `IR3TIB01EZM156N` |
+| Fed | `FEDFUNDS` | `DGS3MO` |
+| BOJ | `IRSTCI01JPM156N` | `IR3TIB01JPM156N` |
+
+Forventet ændring (bps) = `(forward − policy) × 100`. Det mappes til P(hold|cut|hike) med bounded logistik/Gaussian (prototype v0 — ikke OIS-futures).
+
+Signal-metadata: `fair_value_source`, `fair_value_probability`, `cb_*` felter.
+
+Test: `uv run python scripts/test_cb_meeting_fair.py`
+
+---
+
+## 5. Classifier (base rates)
 
 **Kode:** `src/pss/base_rates/classifier.py`
 
@@ -74,7 +101,7 @@ Efter ændring: `apply_base_rate_flags.py`, `seed_base_rates.py`, `expire_stale_
 
 ---
 
-## 5. Parametre (v0, uge 6)
+## 6. Parametre (v0, uge 6)
 
 | Parameter | Værdi | Note |
 |-----------|-------|------|
@@ -89,7 +116,7 @@ Efter ændring: `apply_base_rate_flags.py`, `seed_base_rates.py`, `expire_stale_
 
 ---
 
-## 6. Pipeline og drift
+## 7. Pipeline og drift
 
 ```
 market_discovery (1t) → price_snapshot (10m) → signal_scan (1t)
@@ -112,7 +139,7 @@ market_discovery (1t) → price_snapshot (10m) → signal_scan (1t)
 
 ---
 
-## 7. Uge 6 konklusion
+## 8. Uge 6 konklusion
 
 | Emne | Konklusion |
 |------|------------|
@@ -124,7 +151,7 @@ market_discovery (1t) → price_snapshot (10m) → signal_scan (1t)
 
 ---
 
-## 8. Beslutningskriterium (uge 7+)
+## 9. Beslutningskriterium (uge 7+)
 
 Strategi A **fortsætter** mod backtest hvis:
 
