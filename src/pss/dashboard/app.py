@@ -45,7 +45,7 @@ else:
 
 c1, c2, c3, c4 = st.columns(4)
 c1.metric("Aktive markeder", stats.active_markets)
-c2.metric("Base-rate markeder", stats.base_rate_markets)
+c2.metric("Tracked events", stats.tracked_events)
 c3.metric("Snapshots i DB", f"{stats.snapshot_count:,}")
 last = (
     stats.last_snapshot_at.strftime("%Y-%m-%d %H:%M UTC")

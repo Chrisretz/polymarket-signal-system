@@ -1,0 +1,124 @@
+market_id,category,side,entry_at,exit_at,size_usd,pnl_usd,pnl_pct,exit_reason,won,suspect_classification,question
+9608,us_cpi_above_consensus,BUY_YES,2026-04-18T00:00:00+00:00,2026-05-17T22:00:48.078022+00:00,500.0,168.17,0.3363,end_of_data,True,True,Will South African inflation be between 4.1% and 4.4% in 2026?
+6045,us_gdp_above_consensus,BUY_YES,2026-04-18T00:00:02+00:00,2026-04-28T18:00:10+00:00,500.0,2602.93,5.2059,convergence,True,False,Will US GDP growth in 2026 be between 1.0% and 1.5%?
+9459,us_gdp_above_consensus,BUY_YES,2026-04-18T00:00:02+00:00,2026-04-28T18:00:10+00:00,500.0,1124.6,2.2492,convergence,True,False,Will UK annual GDP growth in 2026 be between 4% and 5%?
+9588,us_gdp_above_consensus,BUY_YES,2026-04-18T00:00:02+00:00,2026-05-17T22:00:48.078022+00:00,500.0,401.96,0.8039,end_of_data,True,False,Will world GDP growth be 3.1% in 2026?
+12372,us_gdp_above_consensus,BUY_YES,2026-04-18T00:00:02+00:00,2026-04-28T18:00:10+00:00,500.0,1793.05,3.5861,convergence,True,False,Will Brazil’s Q1 2026 GDP growth rate (YoY) be less than 0.7%?
+10897,us_cpi_above_consensus,BUY_YES,2026-04-18T00:00:03+00:00,2026-05-17T22:00:48.078022+00:00,500.0,226.06,0.4521,end_of_data,True,True,Will South Korea’s 2026 Annual Inflation be between 2.4% and 2.6%?
+9578,us_cpi_above_consensus,BUY_YES,2026-04-18T06:00:51+00:00,2026-05-17T22:00:48.078022+00:00,500.0,732.47,1.4649,end_of_data,True,True,Will Brazil’s Annual Inflation in 2026 be between 3.50% and 3.99%?
+9604,us_cpi_above_consensus,BUY_YES,2026-04-18T06:00:51+00:00,2026-05-17T22:00:48.078022+00:00,500.0,480.41,0.9608,end_of_data,True,True,Will South African inflation be between 2.9% and 3.2% in 2026?
+9458,us_gdp_above_consensus,BUY_YES,2026-04-18T06:00:51+00:00,2026-05-17T22:00:48.078022+00:00,500.0,-165.02,-0.33,end_of_data,False,False,Will UK annual GDP growth in 2026 be between 3% and 4%?
+10898,us_cpi_above_consensus,BUY_YES,2026-04-18T06:00:53+00:00,2026-05-17T22:00:48.078022+00:00,500.0,-69.55,-0.1391,end_of_data,False,True,Will South Korea’s 2026 Annual Inflation be between 2.7% and 2.9%?
+9090,us_cpi_above_consensus,BUY_YES,2026-04-18T06:00:54+00:00,2026-05-17T22:00:48.078022+00:00,500.0,-277.11,-0.5542,end_of_data,False,True,Will the UK’s 2026 inflation be between 2.5% and 2.9%?
+9610,us_cpi_above_consensus,BUY_YES,2026-04-18T06:00:54+00:00,2026-05-17T22:00:48.078022+00:00,500.0,-46.84,-0.0937,end_of_data,False,True,Will South African inflation be between 4.7% and 5.0% in 2026?
+11043,us_cpi_above_consensus,BUY_YES,2026-04-18T06:00:54+00:00,2026-05-17T22:00:48.078022+00:00,500.0,-351.41,-0.7028,end_of_data,False,True,Will India’s 2026 Annual Inflation be between 3.75% and 4.49%?
+9568,us_cpi_above_consensus,BUY_YES,2026-04-18T06:00:55+00:00,2026-05-17T22:00:48.078022+00:00,500.0,422.89,0.8458,end_of_data,True,True,Will Canada’s 2026 inflation be between 3.0% and 3.4%?
+6243,us_cpi_above_consensus,BUY_YES,2026-04-18T06:00:56+00:00,2026-04-28T18:00:04+00:00,500.0,374.06,0.7481,convergence,True,True,Will inflation reach more than 4% in 2026?
+9580,us_cpi_above_consensus,BUY_YES,2026-04-18T06:00:56+00:00,2026-05-17T22:00:48.078022+00:00,500.0,-228.98,-0.458,end_of_data,False,True,Will Brazil’s Annual Inflation in 2026 be between 4.50% and 4.99%?
+12377,us_gdp_above_consensus,BUY_YES,2026-04-18T06:00:56+00:00,2026-04-28T18:00:04+00:00,500.0,7887.97,15.7759,convergence,True,False,Will Brazil’s Q1 2026 GDP growth rate (YoY) be between 2.3% and 2.6%?
+8572,us_cpi_above_consensus,BUY_YES,2026-04-18T06:00:57+00:00,2026-05-17T22:00:48.078022+00:00,500.0,2626.67,5.2533,end_of_data,True,True,Will Canada’s 2026 inflation be between 1.5% and 1.9%?
+11041,us_cpi_above_consensus,BUY_YES,2026-04-18T06:00:57+00:00,2026-05-17T22:00:48.078022+00:00,500.0,-323.53,-0.6471,end_of_data,False,True,Will India’s 2026 Annual Inflation be between 2.25% and 2.99%?
+9585,us_cpi_above_consensus,BUY_YES,2026-04-18T06:00:58+00:00,2026-05-17T22:00:48.078022+00:00,500.0,665.31,1.3306,end_of_data,True,True,Will Brazil’s Annual Inflation in 2026 be at least 7.00%?
+9283,us_cpi_above_consensus,BUY_YES,2026-04-18T06:00:59+00:00,2026-04-28T18:00:07+00:00,500.0,954.52,1.909,convergence,True,True,Will Argentina’s annual inflation in 2026 be between 35% and 39.9%?
+9593,us_gdp_above_consensus,BUY_YES,2026-04-18T06:00:59+00:00,2026-04-28T18:00:07+00:00,500.0,17805.03,35.6101,convergence,True,False,Will world GDP growth be 3.6% in 2026?
+9611,us_cpi_above_consensus,BUY_YES,2026-04-18T06:00:59+00:00,2026-04-28T18:00:07+00:00,500.0,480.21,0.9604,convergence,True,True,Will South African inflation be greater than 5.0% in 2026?
+9572,eu_hicp_above_consensus,BUY_YES,2026-04-18T12:00:41+00:00,2026-05-17T22:00:48.078022+00:00,500.0,1001.68,2.0034,end_of_data,True,True,Will the Eurozone's 2026 Annual Inflation be between 2.8% and 3.0%?
+6245,us_cpi_above_consensus,BUY_YES,2026-04-18T12:00:47+00:00,2026-05-17T22:00:48.078022+00:00,500.0,46.26,0.0925,end_of_data,True,True,Will inflation reach more than 6% in 2026?
+9276,us_cpi_above_consensus,BUY_YES,2026-04-18T12:00:47+00:00,2026-04-29T18:00:04+00:00,500.0,714.16,1.4283,convergence,True,True,Will China's annual inflation in 2026 be between 1.1% and 1.5%?
+9583,us_cpi_above_consensus,BUY_YES,2026-04-18T12:00:47+00:00,2026-05-17T22:00:48.078022+00:00,500.0,33.16,0.0663,end_of_data,True,True,Will Brazil’s Annual Inflation in 2026 be between 6.00% and 6.49%?
+9606,us_cpi_above_consensus,BUY_YES,2026-04-18T12:00:48+00:00,2026-05-17T22:00:48.078022+00:00,500.0,-110.2,-0.2204,end_of_data,False,True,Will South African inflation be between 3.5% and 3.8% in 2026?
+9280,us_cpi_above_consensus,BUY_YES,2026-04-18T12:00:51+00:00,2026-05-17T22:00:48.078022+00:00,500.0,37.34,0.0747,end_of_data,True,True,Will Argentina’s annual inflation in 2026 be between 20% and 24.9%?
+9460,us_gdp_above_consensus,BUY_YES,2026-04-18T12:00:51+00:00,2026-04-28T18:00:04+00:00,500.0,4232.03,8.4641,convergence,True,False,Will UK annual GDP growth in 2026 be 5% or higher?
+11349,us_gdp_above_consensus,BUY_YES,2026-04-18T12:00:51+00:00,2026-04-28T18:00:04+00:00,500.0,702.17,1.4043,convergence,True,False,Will Japan GDP growth in Q1 2026 be between -0.3% and -0.1%?
+9284,us_cpi_above_consensus,BUY_YES,2026-04-18T12:00:53+00:00,2026-05-17T22:00:48.078022+00:00,500.0,-11.18,-0.0224,end_of_data,False,True,Will Argentina’s annual inflation in 2026 be at least 45%?
+9281,us_cpi_above_consensus,BUY_YES,2026-04-18T12:00:56+00:00,2026-05-17T22:00:48.078022+00:00,500.0,83.25,0.1665,end_of_data,True,True,Will Argentina’s annual inflation in 2026 be between 30% and 34.9%?
+9086,us_cpi_above_consensus,BUY_YES,2026-04-18T12:00:59+00:00,2026-05-17T22:00:48.078022+00:00,500.0,-458.56,-0.9171,end_of_data,False,True,Will the UK’s 2026 inflation be less than 1.0%?
+9573,us_cpi_above_consensus,BUY_YES,2026-04-18T12:00:59+00:00,2026-05-17T22:00:48.078022+00:00,500.0,343.67,0.6873,end_of_data,True,True,Will China's annual inflation in 2026 be between 2.0% and 2.4%?
+9457,us_gdp_above_consensus,BUY_YES,2026-04-18T18:00:00+00:00,2026-05-17T22:00:48.078022+00:00,500.0,1304.63,2.6093,end_of_data,True,False,Will UK annual GDP growth in 2026 be between 2% and 3%?
+9456,us_gdp_above_consensus,BUY_YES,2026-04-18T18:00:00+00:00,2026-04-28T18:00:10+00:00,500.0,544.86,1.0897,convergence,True,False,Will UK annual GDP growth in 2026 be between 1% and 2%?
+9592,us_gdp_above_consensus,BUY_YES,2026-04-18T18:00:01+00:00,2026-04-28T18:00:10+00:00,500.0,4441.72,8.8834,convergence,True,False,Will world GDP growth be 3.5% in 2026?
+11040,us_cpi_above_consensus,BUY_YES,2026-04-18T18:00:01+00:00,2026-05-17T22:00:48.078022+00:00,500.0,-326.08,-0.6522,end_of_data,False,True,Will India’s 2026 Annual Inflation be between 1.50% and 2.24%?
+12378,us_gdp_above_consensus,BUY_YES,2026-04-18T18:00:01+00:00,2026-05-17T22:00:48.078022+00:00,500.0,-376.51,-0.753,end_of_data,False,False,Will Brazil’s Q1 2026 GDP growth rate (YoY) be at least 2.7%?
+9272,us_cpi_above_consensus,BUY_YES,2026-04-18T18:00:03+00:00,2026-05-17T22:00:48.078022+00:00,500.0,-494.08,-0.9882,end_of_data,False,True,Will China's annual inflation in 2026 be between -0.9% and -0.5%?
+11050,us_cpi_above_consensus,BUY_YES,2026-04-18T18:00:03+00:00,2026-05-17T22:00:48.078022+00:00,500.0,-164.1,-0.3282,end_of_data,False,True,Will Mexico’s 2026 Annual Inflation be between 3.50% and 3.99%?
+11051,us_cpi_above_consensus,BUY_YES,2026-04-18T18:00:03+00:00,2026-05-17T19:37:20.669364+00:00,500.0,252.82,0.5056,convergence,True,True,Will Mexico’s 2026 Annual Inflation be between 4.00% and 4.49%?
+9278,us_cpi_above_consensus,BUY_YES,2026-04-18T18:00:04+00:00,2026-05-17T22:00:48.078022+00:00,500.0,-212.42,-0.4248,end_of_data,False,True,Will China's annual inflation in 2026 be at least 2.5%?
+11348,us_gdp_above_consensus,BUY_YES,2026-04-18T18:00:04+00:00,2026-05-17T22:00:48.078022+00:00,500.0,233.76,0.4675,end_of_data,True,False,Will Japan GDP growth in Q1 2026 be less than or equal to -0.4%?
+6044,us_gdp_above_consensus,BUY_YES,2026-04-18T18:00:05+00:00,2026-05-17T22:00:48.078022+00:00,500.0,620.19,1.2404,end_of_data,True,False,Will US GDP growth in 2026 be between 0.5% and 1.0%?
+10896,us_cpi_above_consensus,BUY_YES,2026-04-18T18:00:05+00:00,2026-05-17T22:00:48.078022+00:00,500.0,476.66,0.9533,end_of_data,True,True,Will South Korea’s 2026 Annual Inflation be between 2.1% and 2.3%?
+6047,us_gdp_above_consensus,BUY_YES,2026-04-18T18:00:07+00:00,2026-05-17T22:00:48.078022+00:00,500.0,1027.38,2.0548,end_of_data,True,False,Will US GDP growth in 2026 be between 2.0% and 2.5%?
+11047,us_cpi_above_consensus,BUY_YES,2026-04-18T18:00:07+00:00,2026-05-17T22:00:48.078022+00:00,500.0,-404.73,-0.8095,end_of_data,False,True,Will Mexico’s 2026 Annual Inflation be less than 2.50%?
+11048,us_cpi_above_consensus,BUY_YES,2026-04-18T18:00:09+00:00,2026-05-17T22:00:48.078022+00:00,500.0,-415.23,-0.8305,end_of_data,False,True,Will Mexico’s 2026 Annual Inflation be between 2.50% and 2.99%?
+9092,us_cpi_above_consensus,BUY_YES,2026-04-18T18:00:10+00:00,2026-05-17T22:00:48.078022+00:00,500.0,22.34,0.0447,end_of_data,True,True,Will the UK’s 2026 inflation be at least 4.5%?
+9603,us_cpi_above_consensus,BUY_YES,2026-04-18T18:00:10+00:00,2026-05-17T22:00:48.078022+00:00,500.0,383.29,0.7666,end_of_data,True,True,Will South African inflation be between 2.6% and 2.9% in 2026?
+11350,us_gdp_above_consensus,BUY_YES,2026-04-18T18:00:10+00:00,2026-04-28T18:00:10+00:00,500.0,1947.23,3.8945,convergence,True,False,Will Japan GDP growth in Q1 2026 be between 0.0% and 0.2%?
+9098,eu_hicp_above_consensus,BUY_YES,2026-04-18T18:00:11+00:00,2026-05-17T22:00:48.078022+00:00,500.0,12396.66,24.7933,end_of_data,True,True,Will the Eurozone's 2026 Annual Inflation be between 1.6% and 1.8%?
+9279,us_cpi_above_consensus,BUY_YES,2026-04-18T18:00:11+00:00,2026-05-17T22:00:48.078022+00:00,500.0,-69.12,-0.1382,end_of_data,False,True,Will Argentina’s annual inflation be less than 20%?
+9282,us_cpi_above_consensus,BUY_YES,2026-04-18T18:00:11+00:00,2026-05-17T22:00:48.078022+00:00,500.0,49.82,0.0996,end_of_data,True,True,Will Argentina’s annual inflation in 2026 be between 25% and 29.9%?
+6244,us_cpi_above_consensus,BUY_YES,2026-04-18T18:00:12+00:00,2026-05-17T22:00:48.078022+00:00,500.0,364.6,0.7292,end_of_data,True,True,Will inflation reach more than 5% in 2026?
+8570,us_cpi_above_consensus,BUY_YES,2026-04-18T18:00:13+00:00,2026-04-29T18:00:12+00:00,500.0,2973.16,5.9463,convergence,True,True,Will Canada’s 2026 inflation be less than 1.0%?
+9577,us_cpi_above_consensus,BUY_YES,2026-04-18T18:00:13+00:00,2026-05-17T22:00:48.078022+00:00,500.0,2377.05,4.7541,end_of_data,True,True,Will Brazil’s Annual Inflation in 2026 be between 3.00% and 3.49%?
+10895,us_cpi_above_consensus,BUY_YES,2026-04-18T18:00:13+00:00,2026-05-17T22:00:48.078022+00:00,500.0,311.37,0.6227,end_of_data,True,True,Will South Korea’s 2026 Annual Inflation be between 1.8% and 2.0%?
+6247,us_cpi_above_consensus,BUY_YES,2026-04-18T18:00:14+00:00,2026-05-17T22:00:48.078022+00:00,500.0,153.22,0.3064,end_of_data,True,True,Will inflation reach more than 10% in 2026?
+9570,us_cpi_above_consensus,BUY_YES,2026-04-18T18:00:14+00:00,2026-04-28T18:00:11+00:00,500.0,935.88,1.8718,convergence,True,True,Will the UK’s 2026 inflation be between 4.0% and 4.4%?
+11039,us_cpi_above_consensus,BUY_YES,2026-04-18T18:00:14+00:00,2026-05-17T22:00:48.078022+00:00,500.0,-89.83,-0.1797,end_of_data,False,True,Will India’s 2026 Annual Inflation be between 0.75% and 1.49%?
+9582,us_cpi_above_consensus,BUY_YES,2026-04-18T18:00:15+00:00,2026-05-17T22:00:48.078022+00:00,500.0,1169.46,2.3389,end_of_data,True,True,Will Brazil’s Annual Inflation in 2026 be between 5.50% and 5.99%?
+9589,us_gdp_above_consensus,BUY_YES,2026-04-18T18:00:15+00:00,2026-04-28T18:00:11+00:00,500.0,4203.49,8.407,convergence,True,False,Will world GDP growth be 3.2% in 2026?
+9602,us_cpi_above_consensus,BUY_YES,2026-04-18T18:00:15+00:00,2026-05-17T22:00:48.078022+00:00,500.0,1573.32,3.1466,end_of_data,True,True,Will South African inflation be less than 2.6% in 2026?
+9576,us_cpi_above_consensus,BUY_YES,2026-04-18T18:00:16+00:00,2026-05-17T22:00:48.078022+00:00,500.0,-238.42,-0.4768,end_of_data,False,True,Will Brazil’s Annual Inflation in 2026 be less than 3.00%?
+11053,us_cpi_above_consensus,BUY_YES,2026-04-18T18:00:16+00:00,2026-05-17T22:00:48.078022+00:00,500.0,-318.68,-0.6374,end_of_data,False,True,Will Mexico’s 2026 Annual Inflation be between 5.00% and 5.49%?
+9607,us_cpi_above_consensus,BUY_YES,2026-04-18T18:00:17+00:00,2026-04-28T18:00:12+00:00,500.0,749.06,1.4981,convergence,True,True,Will South African inflation be between 3.8% and 4.1% in 2026?
+6246,us_cpi_above_consensus,BUY_YES,2026-04-18T18:00:18+00:00,2026-05-17T22:00:48.078022+00:00,500.0,-103.46,-0.2069,end_of_data,False,True,Will inflation reach more than 8% in 2026?
+9274,us_cpi_above_consensus,BUY_YES,2026-04-18T18:00:18+00:00,2026-05-17T22:00:48.078022+00:00,500.0,-433.24,-0.8665,end_of_data,False,True,Will China's annual inflation in 2026 be between 0.1% and 0.5%?
+9455,us_gdp_above_consensus,BUY_YES,2026-04-18T18:00:18+00:00,2026-04-25T18:00:10+00:00,500.0,189.42,0.3788,convergence,True,False,Will UK annual GDP growth in 2026 be between 0% and 1%?
+9527,us_cpi_above_consensus,BUY_YES,2026-04-18T18:00:18+00:00,2026-04-28T18:00:12+00:00,500.0,1425.84,2.8517,convergence,True,True,Will Argentina’s annual inflation in 2026 be between 40% and 44.9%?
+9454,us_gdp_above_consensus,BUY_YES,2026-04-18T18:00:19+00:00,2026-04-28T18:00:12+00:00,500.0,215.29,0.4306,convergence,True,False,Will UK annual GDP growth in 2026 be below 0%?
+9273,us_cpi_above_consensus,BUY_YES,2026-04-18T18:00:19+00:00,2026-05-17T22:00:48.078022+00:00,500.0,-483.66,-0.9673,end_of_data,False,True,Will China's annual inflation in 2026 be between -0.4% and 0.0%?
+9584,us_cpi_above_consensus,BUY_YES,2026-04-18T18:00:19+00:00,2026-05-17T22:00:48.078022+00:00,500.0,514.31,1.0286,end_of_data,True,True,Will Brazil’s Annual Inflation in 2026 be between 6.50% and 6.99%?
+11044,us_cpi_above_consensus,BUY_YES,2026-04-18T18:00:19+00:00,2026-04-26T18:00:27+00:00,500.0,649.93,1.2999,convergence,True,True,Will India’s 2026 Annual Inflation be at least 4.50%?
+10899,us_cpi_above_consensus,BUY_YES,2026-04-18T18:00:19+00:00,2026-04-25T18:00:10+00:00,500.0,201.56,0.4031,convergence,True,True,Will South Korea’s 2026 Annual Inflation be at least 3.0%?
+8571,us_cpi_above_consensus,BUY_YES,2026-04-18T18:00:20+00:00,2026-04-29T18:00:12+00:00,500.0,94324.11,188.6482,convergence,True,True,Will Canada’s 2026 inflation be between 1.0% and 1.4%?
+11042,us_cpi_above_consensus,BUY_YES,2026-04-18T18:00:20+00:00,2026-05-17T22:00:48.078022+00:00,500.0,-254.43,-0.5089,end_of_data,False,True,Will India’s 2026 Annual Inflation be between 3.00% and 3.74%?
+9587,us_gdp_above_consensus,BUY_YES,2026-04-18T18:00:21+00:00,2026-04-28T18:00:12+00:00,500.0,801.47,1.6029,convergence,True,False,Will world GDP growth be 3.0% in 2026?
+10893,us_cpi_above_consensus,BUY_YES,2026-04-18T18:00:21+00:00,2026-05-17T22:00:48.078022+00:00,500.0,-200.08,-0.4002,end_of_data,False,True,Will South Korea’s 2026 Annual Inflation be less than 1.5%?
+6238,us_gdp_above_consensus,BUY_YES,2026-04-18T18:00:22+00:00,2026-05-17T22:00:48.078022+00:00,500.0,-6.43,-0.0129,end_of_data,False,False,Negative GDP growth in 2026?
+8573,us_cpi_above_consensus,BUY_YES,2026-04-18T18:00:22+00:00,2026-05-17T22:00:48.078022+00:00,500.0,1350.33,2.7007,end_of_data,True,True,Will Canada’s 2026 inflation be between 2.0% and 2.4%?
+9097,eu_hicp_above_consensus,BUY_YES,2026-04-18T18:00:22+00:00,2026-05-17T22:00:48.078022+00:00,500.0,-271.97,-0.5439,end_of_data,False,True,Will the Eurozone's 2026 Annual Inflation be between 1.3% and 1.5%?
+9089,us_cpi_above_consensus,BUY_YES,2026-04-19T06:00:59+00:00,2026-05-17T22:00:48.078022+00:00,500.0,580.39,1.1608,end_of_data,True,True,Will the UK’s 2026 inflation be between 2.0% and 2.4%?
+11038,us_cpi_above_consensus,BUY_YES,2026-04-19T06:00:59+00:00,2026-05-17T22:00:48.078022+00:00,500.0,-399.88,-0.7998,end_of_data,False,True,Will India’s 2026 Annual Inflation be less than 0.75%?
+11054,us_cpi_above_consensus,BUY_YES,2026-04-19T12:00:15+00:00,2026-05-17T22:00:48.078022+00:00,500.0,-392.71,-0.7854,end_of_data,False,True,Will Mexico’s 2026 Annual Inflation be at least 5.50%?
+6046,us_gdp_above_consensus,BUY_YES,2026-04-21T06:00:04+00:00,2026-04-28T18:00:10+00:00,500.0,1463.49,2.927,convergence,True,False,Will US GDP growth in 2026 be between 1.5% and 2.0%?
+9594,us_gdp_above_consensus,BUY_YES,2026-04-21T06:00:05+00:00,2026-04-28T18:00:10+00:00,500.0,1135.76,2.2715,convergence,True,False,Will world GDP growth be 3.7%+ in 2026?
+9275,us_cpi_above_consensus,BUY_YES,2026-04-21T06:00:31+00:00,2026-05-17T22:00:48.078022+00:00,500.0,-104.97,-0.2099,end_of_data,False,True,Will China's annual inflation in 2026 be between 0.6% and 1.0%?
+8574,us_cpi_above_consensus,BUY_YES,2026-04-21T18:00:47+00:00,2026-05-06T18:00:06+00:00,500.0,1025.51,2.051,convergence,True,True,Will Canada’s 2026 inflation be between 2.5% and 2.9%?
+9277,us_cpi_above_consensus,BUY_YES,2026-04-21T18:00:47+00:00,2026-05-17T22:00:48.078022+00:00,500.0,1616.43,3.2329,end_of_data,True,True,Will China's annual inflation in 2026 be between 1.6% and 2.0%?
+9591,us_gdp_above_consensus,BUY_YES,2026-04-21T18:00:47+00:00,2026-05-17T22:00:48.078022+00:00,500.0,2062.31,4.1246,end_of_data,True,False,Will world GDP growth be 3.4% in 2026?
+9095,eu_hicp_above_consensus,BUY_YES,2026-04-21T18:00:48+00:00,2026-05-17T22:00:48.078022+00:00,500.0,7123.33,14.2467,end_of_data,True,True,Will the Eurozone's 2026 Annual Inflation be less than 1.0%?
+9096,eu_hicp_above_consensus,BUY_YES,2026-04-21T18:00:48+00:00,2026-05-17T22:00:48.078022+00:00,500.0,192.63,0.3853,end_of_data,True,True,Will the Eurozone's 2026 Annual Inflation be between 1.0% and 1.2%?
+9581,us_cpi_above_consensus,BUY_YES,2026-04-21T18:00:48+00:00,2026-05-17T22:00:48.078022+00:00,500.0,0.86,0.0017,end_of_data,True,True,Will Brazil’s Annual Inflation in 2026 be between 5.00% and 5.49%?
+9091,us_cpi_above_consensus,BUY_YES,2026-04-21T18:00:50+00:00,2026-05-17T22:00:48.078022+00:00,500.0,130.51,0.261,end_of_data,True,True,Will the UK’s 2026 inflation be between 3.5% and 3.9%?
+9101,eu_hicp_above_consensus,BUY_YES,2026-04-21T18:00:50+00:00,2026-05-17T22:00:48.078022+00:00,500.0,-280.44,-0.5609,end_of_data,False,True,Will the Eurozone's 2026 Annual Inflation be between 2.5% and 2.7%?
+9605,us_cpi_above_consensus,BUY_YES,2026-04-21T18:00:50+00:00,2026-05-17T22:00:48.078022+00:00,500.0,96.73,0.1935,end_of_data,True,True,Will South African inflation be between 3.2% and 3.5% in 2026?
+11052,us_cpi_above_consensus,BUY_YES,2026-04-21T18:00:50+00:00,2026-04-28T18:00:08+00:00,500.0,633.02,1.266,convergence,True,True,Will Mexico’s 2026 Annual Inflation be between 4.50% and 4.99%?
+8575,us_cpi_above_consensus,BUY_YES,2026-04-21T18:00:51+00:00,2026-05-17T22:00:48.078022+00:00,500.0,866.74,1.7335,end_of_data,True,True,Will Canada’s 2026 inflation be at least 4.0%?
+11351,us_gdp_above_consensus,BUY_YES,2026-04-21T18:00:52+00:00,2026-04-28T18:00:08+00:00,500.0,231.96,0.4639,convergence,True,False,Will Japan GDP growth in Q1 2026 be between 0.3% and 0.5%?
+9099,eu_hicp_above_consensus,BUY_YES,2026-04-21T18:00:54+00:00,2026-05-17T22:00:48.078022+00:00,500.0,6220.19,12.4404,end_of_data,True,True,Will the Eurozone's 2026 Annual Inflation be between 1.9% and 2.1%?
+10894,us_cpi_above_consensus,BUY_YES,2026-04-21T18:00:54+00:00,2026-05-17T22:00:48.078022+00:00,500.0,-376.62,-0.7532,end_of_data,False,True,Will South Korea’s 2026 Annual Inflation be between 1.5% and 1.7%?
+11354,us_gdp_above_consensus,BUY_YES,2026-04-21T18:00:54+00:00,2026-05-17T22:00:48.078022+00:00,500.0,-436.67,-0.8733,end_of_data,False,False,Will Japan GDP growth in Q1 2026 be at least 1.2%?
+9087,us_cpi_above_consensus,BUY_YES,2026-04-21T18:00:55+00:00,2026-05-17T22:00:48.078022+00:00,500.0,130.51,0.261,end_of_data,True,True,Will the UK’s 2026 inflation be between 1.0% and 1.4%?
+9100,eu_hicp_above_consensus,BUY_YES,2026-04-21T18:00:55+00:00,2026-05-17T22:00:48.078022+00:00,500.0,106.6,0.2132,end_of_data,True,True,Will the Eurozone's 2026 Annual Inflation be between 2.2% and 2.4%?
+9088,us_cpi_above_consensus,BUY_YES,2026-04-21T18:00:56+00:00,2026-05-17T22:00:48.078022+00:00,500.0,-185.04,-0.3701,end_of_data,False,True,Will the UK’s 2026 inflation be between 1.5% and 1.9%?
+9579,us_cpi_above_consensus,BUY_YES,2026-04-21T18:00:56+00:00,2026-05-17T22:00:48.078022+00:00,500.0,-251.8,-0.5036,end_of_data,False,True,Will Brazil’s Annual Inflation in 2026 be between 4.00% and 4.49%?
+12373,us_gdp_above_consensus,BUY_YES,2026-04-21T18:00:56+00:00,2026-04-29T18:00:07+00:00,500.0,28168.11,56.3362,convergence,True,False,Will Brazil’s Q1 2026 GDP growth rate (YoY) be between 0.7% and 1.0%?
+6043,us_gdp_above_consensus,BUY_YES,2026-04-21T18:00:57+00:00,2026-04-28T18:00:08+00:00,500.0,2024.42,4.0488,convergence,True,False,Will US GDP growth in 2026 be less than 0.5%?
+9271,us_cpi_above_consensus,BUY_YES,2026-04-21T18:00:57+00:00,2026-05-17T22:00:48.078022+00:00,500.0,-238.42,-0.4768,end_of_data,False,True,Will China's annual inflation in 2026 be less than -1.0%?
+11049,us_cpi_above_consensus,BUY_YES,2026-04-21T18:00:58+00:00,2026-05-17T22:00:48.078022+00:00,500.0,-365.35,-0.7307,end_of_data,False,True,Will Mexico’s 2026 Annual Inflation be between 3.00% and 3.49%?
+9609,us_cpi_above_consensus,BUY_YES,2026-04-21T18:00:59+00:00,2026-05-04T18:00:07+00:00,500.0,779.97,1.5599,convergence,True,True,Will South African inflation be between 4.4% and 4.7% in 2026?
+9590,us_gdp_above_consensus,BUY_YES,2026-04-21T18:00:59+00:00,2026-04-29T18:00:08+00:00,500.0,16415.18,32.8304,convergence,True,False,Will world GDP growth be 3.3% in 2026?
+12374,us_gdp_above_consensus,BUY_YES,2026-04-21T18:00:59+00:00,2026-04-28T18:00:08+00:00,500.0,1174.28,2.3486,convergence,True,False,Will Brazil’s Q1 2026 GDP growth rate (YoY) be between 1.1% and 1.4%?
+9586,us_gdp_above_consensus,BUY_YES,2026-04-22T18:00:08+00:00,2026-04-29T18:00:07+00:00,500.0,303.78,0.6076,convergence,True,False,Will world GDP growth be ≤2.9% in 2026?
+11353,us_gdp_above_consensus,BUY_YES,2026-04-22T18:00:12+00:00,2026-05-03T18:00:07+00:00,500.0,646.46,1.2929,convergence,True,False,Will Japan GDP growth in Q1 2026 be between 0.9% and 1.1%?
+11352,us_gdp_above_consensus,BUY_YES,2026-04-26T18:00:16+00:00,2026-04-28T18:00:04+00:00,500.0,385.61,0.7712,convergence,True,False,Will Japan GDP growth in Q1 2026 be between 0.6% and 0.8%?
+9569,us_cpi_above_consensus,BUY_YES,2026-05-01T18:00:09+00:00,2026-05-17T22:00:48.078022+00:00,500.0,890.04,1.7801,end_of_data,True,True,Will Canada’s 2026 inflation be between 3.5% and 3.9%?
+12376,us_gdp_above_consensus,BUY_YES,2026-05-01T18:00:09+00:00,2026-05-06T18:00:06+00:00,500.0,459.09,0.9182,convergence,True,False,Will Brazil’s Q1 2026 GDP growth rate (YoY) be between 1.9% and 2.2%?
+12375,us_gdp_above_consensus,BUY_YES,2026-05-01T18:00:12+00:00,2026-05-03T18:00:08+00:00,500.0,234.35,0.4687,convergence,True,False,Will Brazil’s Q1 2026 GDP growth rate (YoY) be between 1.5% and 1.8%?

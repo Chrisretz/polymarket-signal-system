@@ -1,11 +1,24 @@
 # Polymarket Signal System (PSS)
 
-Kvantitativt tradingsystem til Polymarket prediction markets.
+Kvantitativt analyse- og handelssystem til Polymarket prediction markets.
 
-- [STRATEGY.md](STRATEGY.md) — strategi, edge-hypoteser, risk
-- [IMPLEMENTATION.md](IMPLEMENTATION.md) — teknisk implementation og ugeplan
-- [PROGRESS.md](PROGRESS.md) — **hvilke uger er implementeret** (✅ / 🟡 / ⬜)
-- [docs/strategies/base_rate_fade.md](docs/strategies/base_rate_fade.md) — strategi A (v0, drift og review)
+**Status (maj 2026):** Pivot fra Strategi A (base_rate_fade) til Strategi C (cross-market konsistens arbitrage). Cleanup-fase startet. Se CLEANUP.md, STRATEGY.md og IMPLEMENTATION.md.
+
+## Strategi-historik
+
+| Version | Strategi | Status | Hvorfor |
+|---------|----------|--------|---------|
+| v1.0 | Base rate fade (Strategi A) | Frosset permanent | Backtest viste 70% suspect classification; live ECB-test viste 80pp model-fejl; CB-markeder er for velinformerede |
+| v2.0 | Cross-market konsistens (Strategi C) | Research-fase | Ren matematisk arbitrage, ingen forudsigelse krævet |
+
+Arkiveret kontekst: `data/archive/invalid_baseline/` indeholder den oprindelige backtest fra Strategi A som dokumentation af hvorfor strategi-skiftet skete.
+
+## Dokumenter
+
+- [STRATEGY.md](STRATEGY.md) - aktuel strategi, edge-hypotese, risici
+- [IMPLEMENTATION.md](IMPLEMENTATION.md) - teknisk implementering og ugeplan
+- [CLEANUP.md](CLEANUP.md) - oprydningsplan ved pivot fra A til C
+- [PROGRESS.md](PROGRESS.md) - status per fase
 
 ## Lokal opsætning
 
@@ -16,145 +29,89 @@ docker compose ps
 uv run python scripts/verify_setup.py
 uv run python scripts/init_db.py
 uv run python scripts/verify_schema.py
-uv run pss
 ```
 
-### Telegram (Dag 4)
+### Telegram
 
-1. Opret bot via [@BotFather](https://t.me/BotFather) (`/newbot`) → kopier token til `TELEGRAM_BOT_TOKEN`
+1. Opret bot via [@BotFather](https://t.me/BotFather) (`/newbot`) - kopier token til `TELEGRAM_BOT_TOKEN`
 2. Åbn chat med din bot og send `/start`
-3. Find dit `chat_id` (fx [@userinfobot](https://t.me/userinfobot)) → `TELEGRAM_CHAT_ID`
-4. Test:
+3. Find dit `chat_id` (fx [@userinfobot](https://t.me/userinfobot)) - `TELEGRAM_CHAT_ID`
+4. Test: `uv run python scripts/test_telegram.py`
 
-```bash
-uv run python scripts/test_telegram.py
-```
-
-### Gamma API (Dag 5)
+### Gamma API
 
 ```bash
 uv run python scripts/test_gamma.py
 ```
 
-### Market discovery (Uge 2, Dag 1)
-
-Kræver Docker/Postgres. Første kørsel kan tage flere minutter (pagination + rate limit).
+### Market og event discovery
 
 ```bash
 uv run python scripts/run_market_discovery.py
+uv run python scripts/run_event_discovery.py  # NY for Strategi C
 ```
 
-### Price snapshots (Uge 2, Dag 2)
-
-Kræver at `markets` allerede er fyldt. Første kørsel tager ~3-4 min.
+### Snapshot pipeline
 
 ```bash
 uv run python scripts/run_price_snapshot.py
+uv run python scripts/run_event_snapshot.py  # NY for Strategi C
 ```
 
-### Scheduler (Uge 2, Dag 3)
+### Scheduler
 
-Kræver Docker/Postgres. Kører discovery (hver time) og snapshots (hver 10. min).
-Kører begge jobs én gang med det samme ved opstart.
+Kører alle ingestion-jobs på faste intervaller.
 
 ```bash
 uv run python -m pss.scheduler
 ```
 
-Tjek job-plan uden at starte pipeline:
+Tjek job-plan: `uv run python scripts/check_scheduler_jobs.py`
 
-```bash
-uv run python scripts/check_scheduler_jobs.py
-```
+### Struktureret logging
 
-### Struktureret logging (Uge 2, Dag 4)
-
-Standard i `development`: læsbare logs. Sæt `LOG_FORMAT=json` i `.env` (eller `ENVIRONMENT=production`) for én JSON-linje per event.
+Standard i development: læsbare logs. Sæt `LOG_FORMAT=json` for én JSON-linje per event.
 
 ```bash
 uv run python scripts/test_logging.py
 LOG_FORMAT=json uv run python scripts/test_logging.py
 ```
 
-Kør kommandoerne **én ad gangen** (undgå `#`-kommentarer på samme linje i terminalen).
+Alle secrets ligger i `.env` (ikke committet til git).
 
-Alle secrets og lokale indstillinger ligger i **`.env`** i projektroden (filen committes ikke til git). Database: `localhost:5432`, bruger/db `pss`, password som i din `.env`.
+## Deploy til Railway
 
-## Deploy til Railway (Uge 2, Dag 5)
+PSS kører som én worker med scheduler (discovery + snapshots 24/7).
+Database skal understøtte TimescaleDB.
 
-PSS kører i skyen som **én worker**: scheduler (discovery + snapshots + signal-scan 24/7).  
-Database skal understøtte **TimescaleDB** (hypertables) — standard Railway Postgres uden extension er ikke nok.
+**Vigtigt:** Kør kun scheduler ét sted (Railway eller lokal).
 
-**Vigtigt:** Kør kun scheduler **ét sted** (Railway *eller* lokal `uv run python -m pss.scheduler`).
+### Opsætning
 
-### Anbefalet opsætning
-
-1. **Database:** [Timescale Cloud](https://www.timescale.com/) (samme DB som lokal `.env`).
-2. **Railway:** Projekt → **Deploy from GitHub** → `Chrisretz/polymarket-signal-system` → `main`.
-3. **Service variables** — åbn **selve worker-servicen** (ikke Project → Shared Variables).
-   Klik `polymarket-signal-system` → fanen **Variables** → Raw Editor eller Add:
+1. Database: [Timescale Cloud](https://www.timescale.com/)
+2. Railway: Deploy from GitHub
+3. Service variables (i selve worker-service, ikke project-level):
    - `DATABASE_URL`, `DATABASE_SSL_INSECURE=true`
    - `ENVIRONMENT=production`, `LOG_FORMAT=json`, `LOG_LEVEL=WARNING`
    - `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`
-   - `FRED_API_KEY` (base rates), `BANKROLL_USD=10000`
-   - Sæt **ikke** `PORT` manuelt — Railway injicerer den (medmindre docs siger andet).
-4. Railway bruger `Dockerfile` + `railway.toml` automatisk.
-5. Ved deploy: migrationer (`init_db`) → scheduler med 3 jobs (discovery, snapshot, signal_scan).
+   - `BANKROLL_USD=10000`
 
-### Verificér deploy
+Bemærk: `FRED_API_KEY` er ikke længere nødvendig efter pivot til Strategi C.
 
-I Railway → **Deployments** → **View logs**. Forvent JSON-linjer:
+## Tekniske valg
 
-- `logging_configured`
-- `scheduler_started` (3 jobs)
-- `job_finished` for `market_discovery`, `price_snapshot`, `signal_scan`
+- Python 3.11+ med uv som package manager
+- PostgreSQL 16 + TimescaleDB for tidsserie-data
+- SQLAlchemy 2.0 + Alembic migrations
+- httpx + py-clob-client for Polymarket API
+- APScheduler for jobs
+- Streamlit for dashboard
+- Telegram for alerts
 
-### Lokal test af Docker-image (valgfrit)
+## Edge-hypotese (Strategi C kort)
 
-```bash
-docker build -t pss-scheduler .
-docker run --env-file .env pss-scheduler
-```
+Polymarket events med mutually exclusive outcomes bør summere til P(yes) = 1.0. Når sum afviger fra 1.0 med mere end friktion, eksisterer ren matematisk arbitrage. Ingen forudsigelse om udfald nødvendig.
 
-Kræver at `.env` peger på en reachable database (ikke `localhost` fra containerens perspektiv).
+Realistisk forventning: 2-10 trades/måned, 100-500 USD/trade, edge 2-6pp efter friktion. Skalerer ikke godt opad.
 
-## Dashboard (Uge 9)
-
-Streamlit-UI mod samme database som scheduler (`.env` med `DATABASE_URL`).
-
-```bash
-uv run streamlit run src/pss/dashboard/app.py
-```
-
-Åbner typisk `http://localhost:8501` — sider: **Signaler**, **Positioner**, **Journal**, **Performance** (drawdown-alerts på forsiden og under Performance).
-
-Se [PROGRESS.md](PROGRESS.md) for status per uge.
-
-### Dashboard online (Railway)
-
-Opret en **anden Railway-service** i samme projekt (scheduler og dashboard skal ikke dele én container):
-
-1. **New Service** → samme GitHub-repo → branch `main`.
-2. **Settings → Build:** `Dockerfile Path` = **`Dockerfile.dashboard`** (præcis det — ikke `Dockerfile`).  
-   **Settings → Deploy → Config-as-code:** `railway.dashboard.json` (valgfrit, healthcheck til Streamlit).
-3. Efter deploy: **View logs** skal vise `PSS STREAMLIT DASHBOARD` — **ikke** `PSS: starter scheduler`.  
-   Hvis browseren kun viser `ok`, kører forkert image (scheduler-healthcheck).
-4. **Variables** (samme som worker, minus scheduler-specifikke):
-   - `DATABASE_URL`, `DATABASE_SSL_INSECURE=true`
-   - `ENVIRONMENT=production`, `BANKROLL_USD=10000`
-   - Sæt **ikke** `PORT` manuelt.
-5. **Networking → Generate domain** (fx `pss-dashboard.up.railway.app`).
-6. Åbn URL fra telefon/anden PC.
-
-Scheduler-serviceen beholder `Dockerfile` + `docker_entrypoint.sh` uændret.
-
-## Telegram: link til Polymarket
-
-Nye signaler inkluderer **«Åbn marked på Polymarket»** (HTML-link) når `markets.slug` findes i DB.  
-URL gemmes også i `signal_metadata.polymarket_url` og vises i dashboard under **Signaler**.
-
-Test lokalt:
-
-```bash
-uv run python scripts/notify_test_signal.py
-```
+Se STRATEGY.md for fuld hypotese, risici, og stop-kriterier.

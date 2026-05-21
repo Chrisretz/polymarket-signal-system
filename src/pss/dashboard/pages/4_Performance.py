@@ -67,6 +67,6 @@ st.write(
     {
         "snapshots": stats.snapshot_count,
         "signaler": stats.signal_counts,
-        "base_rate_markeder": stats.base_rate_markets,
+        "tracked_events": stats.tracked_events,
     },
 )

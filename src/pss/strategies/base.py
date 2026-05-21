@@ -8,6 +8,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, Literal
 
 SignalSide = Literal["BUY_YES", "BUY_NO"]
+ModelConfidence = Literal["low", "medium", "high"]
 VALID_SIDES: frozenset[str] = frozenset({"BUY_YES", "BUY_NO"})
 
 
@@ -30,7 +31,8 @@ class Signal:
     fair_value_estimate: float
     edge_pct: float
     confidence: float
-    suggested_size_usd: float
+    model_confidence: ModelConfidence = "medium"
+    suggested_size_usd: float = 0.0
     exit_price_target: float | None = None
     exit_date_target: datetime | None = None
     exit_conditions: dict[str, Any] = field(default_factory=dict)
@@ -57,6 +59,7 @@ class Signal:
         market_price: float,
         fair_value_estimate: float,
         confidence: float,
+        model_confidence: ModelConfidence = "medium",
         suggested_size_usd: float = 0.0,
         exit_price_target: float | None = None,
         exit_date_target: datetime | None = None,
@@ -74,6 +77,7 @@ class Signal:
             fair_value_estimate=fair_value_estimate,
             edge_pct=edge,
             confidence=confidence,
+            model_confidence=model_confidence,
             suggested_size_usd=suggested_size_usd,
             exit_price_target=exit_price_target,
             exit_date_target=exit_date_target,

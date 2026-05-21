@@ -49,11 +49,6 @@ class Market(Base):
     resolved_outcome: Mapped[str | None] = mapped_column(Text)
     resolved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     primary_vertical: Mapped[str | None] = mapped_column(Text)
-    has_base_rate: Mapped[bool] = mapped_column(
-        Boolean,
-        default=False,
-        server_default=text("false"),
-    )
     raw_metadata: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
@@ -137,6 +132,66 @@ class OrderbookDepth(Base):
     market: Mapped[Market] = relationship()
 
 
+class Event(Base):
+    __tablename__ = "events"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    event_id: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
+    title: Mapped[str] = mapped_column(Text, nullable=False)
+    description: Mapped[str | None] = mapped_column(Text)
+    slug: Mapped[str | None] = mapped_column(Text)
+    end_date: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, server_default=text("true"))
+    is_resolved: Mapped[bool] = mapped_column(Boolean, default=False, server_default=text("false"))
+    neg_risk: Mapped[bool] = mapped_column(Boolean, default=False, server_default=text("false"))
+    raw_metadata: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+    )
+
+    snapshots: Mapped[list[EventSnapshot]] = relationship(back_populates="event")
+
+    __table_args__ = (
+        Index("idx_events_active", "is_active"),
+        Index("idx_events_end_date", "end_date"),
+    )
+
+
+class EventSnapshot(Base):
+    __tablename__ = "event_snapshots"
+
+    event_id: Mapped[int] = mapped_column(
+        BigInteger,
+        ForeignKey("events.id", ondelete="CASCADE"),
+        primary_key=True,
+    )
+    snapshot_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        primary_key=True,
+    )
+    leg_count: Mapped[int] = mapped_column(Integer, nullable=False)
+    sum_yes_prices: Mapped[float] = mapped_column(Numeric(8, 5), nullable=False)
+    inconsistency_pp: Mapped[float] = mapped_column(Numeric(8, 5), nullable=False)
+    min_leg_liquidity_usd: Mapped[float | None] = mapped_column(Numeric(18, 2))
+    leg_details: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
+
+    event: Mapped[Event] = relationship(back_populates="snapshots")
+
+    __table_args__ = (
+        Index(
+            "idx_event_snapshots_event",
+            "event_id",
+            snapshot_at.desc(),
+        ),
+    )
+
+
 class BaseRate(Base):
     __tablename__ = "base_rates"
 
@@ -189,6 +244,13 @@ class Signal(Base):
     )
     rejected_reason: Mapped[str | None] = mapped_column(Text)
     signal_metadata: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
+    # Strategi C multi-leg (nullable for legacy Strategi A rows)
+    event_id: Mapped[str | None] = mapped_column(Text)
+    legs: Mapped[list[dict[str, Any]] | None] = mapped_column(JSONB)
+    sum_yes_prices: Mapped[float | None] = mapped_column(Numeric(8, 5))
+    inconsistency_pp: Mapped[float | None] = mapped_column(Numeric(8, 5))
+    net_edge_pp: Mapped[float | None] = mapped_column(Numeric(8, 5))
+    min_leg_liquidity_usd: Mapped[float | None] = mapped_column(Numeric(18, 2))
 
     market: Mapped[Market] = relationship(back_populates="signals")
     positions: Mapped[list[Position]] = relationship(back_populates="signal")

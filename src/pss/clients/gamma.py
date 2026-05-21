@@ -55,9 +55,10 @@ class GammaClient:
                 return response.json()
             except httpx.HTTPStatusError as exc:
                 status = exc.response.status_code
-                if status == 422 and path == "/markets":
+                if status == 422 and path in ("/markets", "/events"):
                     logger.warning(
                         "gamma_pagination_limit_reached",
+                        path=path,
                         offset=(params or {}).get("offset"),
                         body=exc.response.text[:120],
                     )
@@ -144,12 +145,16 @@ class GammaClient:
         self,
         *,
         active: bool = True,
+        closed: bool = False,
         limit: int = 50,
+        offset: int = 0,
     ) -> list[dict[str, Any]]:
         """Henter events (grupper af relaterede markeder)."""
         params = {
             "active": str(active).lower(),
+            "closed": str(closed).lower(),
             "limit": limit,
+            "offset": offset,
         }
         data = await self._get("/events", params=params)
         if isinstance(data, list):
@@ -157,3 +162,40 @@ class GammaClient:
         if isinstance(data, dict):
             return data.get("data", []) or []
         return []
+
+    async def iter_active_event_pages(
+        self,
+        *,
+        page_size: int = 100,
+        max_offset: int = 10_000,
+    ):
+        """Yield batches af åbne aktive events (closed=false)."""
+        offset = 0
+        while offset < max_offset:
+            batch = await self.list_events(
+                active=True,
+                closed=False,
+                limit=page_size,
+                offset=offset,
+            )
+
+            if not batch:
+                break
+            yield batch
+            if len(batch) < page_size:
+                break
+            offset += page_size
+        else:
+            logger.debug(
+                "gamma_event_pagination_complete",
+                offset=offset,
+                reason="api_offset_cap",
+            )
+
+    async def list_all_active_events(self) -> list[dict[str, Any]]:
+        """Henter alle åbne aktive events via pagination."""
+        all_events: list[dict[str, Any]] = []
+        async for batch in self.iter_active_event_pages():
+            all_events.extend(batch)
+        logger.info("fetched_active_events", count=len(all_events))
+        return all_events

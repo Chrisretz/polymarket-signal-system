@@ -1,631 +1,259 @@
-# Polymarket Kvantitativt Tradingsystem
-## Strategi og implementeringsplan
+# Polymarket Signal System (PSS) - Strategi C
+## Cross-market konsistens og arbitrage
 
-**Version:** 1.0
+**Version:** 2.0 (erstatter Strategi A-baseret v1.0)
 **Dato:** Maj 2026
-**Ejer:** Christoffer
-**Status:** Draft, klar til iteration i Cursor
+**Status:** Research-fase
 
 ---
 
-## 0. Executive summary
+## Hvorfor strategi-skift fra A til C
 
-Dette dokument beskriver opbygningen af et kvantitativt tradingsystem til Polymarket med fokus på makro-events og europæisk politik som primær vertikal. Målet er ikke at automatisere væk fra dømmekraft, men at bygge et systematisk fundament der reducerer adfærdsmæssige fejl, identificerer mispricing systematisk, og gør beslutningskvaliteten målbar over tid.
+Strategi A (base_rate_fade) blev frosset permanent efter at:
 
-Realistisk forventning: 6-12 måneder før reel kapital allokeres med tillid. Edge er sandsynlig men ikke garanteret. Hvis paper trading efter 3 måneder ikke viser konsistent positiv forventning efter friktion, skal hele tilgangen revurderes, ikke bare strategierne.
+1. Backtest viste 70.7% suspect classification rate på 123 trades
+2. Selv efter brutal refactor til kun Fed/ECB hold-templates, viste live-test at fair value-modellen var 80 procentpoint forskellig fra markedskonsensus på ECB juni 2026-marked
+3. Analyse bekræftede at CB-rate-markeder er for velinformerede til retail-edge på mean-reversion-strategier
 
-**Kerneantagelser**
+Beslutningen var ikke at modellen var bugget. Beslutningen var at strategi-konceptet selv ikke har edge på markedstyper hvor templates kunne klassificere pålideligt.
 
-| Antagelse | Værdi | Hvornår revurderes |
-|-----------|-------|--------------------|
-| Bankroll fase 1 | 5.000-10.000 USD | Efter 3 måneder paper trading |
-| Bankroll fase 2 (live) | 10.000-25.000 USD | Hvis paper-edge bekræftet |
-| Bankroll cap | 50.000 USD | Likviditet sætter naturligt loft |
-| Primær vertikal | Makro + europæisk politik | Efter 6 måneder, evt. udvide |
-| Eksekvering | Signal-generation + manuel exec | Auto først efter dokumenteret edge |
-| Tidsallokering | 10 timer/uge | Vedvarende minimum |
-| Horisont | Minimum 24 måneder | Kortere = sandsynligvis spildt arbejde |
-
-**Stop-kriterier**
-
-Projektet stoppes eller pivoteres hvis:
-1. Paper trading efter 12 uger viser negativt forventet afkast efter friktion
-2. Live trading efter 6 måneder underperformer paper trading materielt (over 30 procent gap)
-3. Realiseret max drawdown overstiger 25 procent af bankroll
-4. Regulatoriske ændringer gør Polymarket utilgængelig fra Danmark
+Strategi C har et fundamentalt anderledes edge-grundlag: ren matematisk inkonsistens mellem mutually exclusive markeder i samme event. Det kræver ikke forudsigelse. Det kræver ikke at slå markedet på information. Det kræver kun at identificere når markedet er internt inkonsistent.
 
 ---
 
-## 1. Edge-hypotese og rationale
+## Edge-hypotese
 
-### 1.1 Hvorfor edge er mulig på Polymarket
+### Kerne-koncept
 
-Tre strukturelle forhold gør Polymarket interessant for en seriøs privat aktør:
+Polymarket organiserer mange markeder i events. Et event har typisk flere markeder hvor outcomes er mutually exclusive (kun ét kan resolvere som YES).
 
-**Likviditetsfragmentering.** Store markeder (US-valg, Fed-beslutninger med høj coverage) er overraskende effektive. Likviditeten falder hurtigt for mellemstore markeder. Det betyder mispricing på 2-10 procentpoint kan eksistere i dage eller uger uden at blive arbitrageret væk, fordi der ikke er nok kapital til at flytte alle markeder samtidigt.
+Eksempler:
+- Fed møde-event: separate markeder for "hold", "cut 25bp", "hike 25bp", "cut 50+bp"
+- Valg-event: separate markeder per kandidat
+- Sportsbegivenhed: separate markeder per mulig vinder
 
-**Systematiske bettor-biases.** Akademisk litteratur på sportsbetting og prediction markets dokumenterer konsistente biases: favorit-longshot bias, recency bias efter store nyheder, narrative-driven mispricing, og home bias (US-fokuserede traders mispricer non-US events). Disse biases er stabile over tid fordi de er menneskelige, ikke strategiske.
-
-**Begrænset institutionel kapital.** I modsætning til aktier og optioner er Polymarket ikke fyldt med kvant-fonde. Reguleringsmæssige restriktioner blokerer US-residents, og markedsstørrelse gør det uinteressant for større fonde. Konkurrencen er informerede privatpersoner og mindre dedikerede grupper, ikke Renaissance.
-
-### 1.2 Hvorfor edge er sværere end det lyder
-
-**Resolution risk.** UMA-oracle systemet kan resolve markeder på måder der overrasker. Det er en strukturel risiko der ikke kan modelleres væk og som skal indgå i edge-beregningen.
-
-**Friktion æder edge.** Markets-makers tager 1-3 procent spread, plus gas på Polygon-netværket. Strategier skal have edge større end den friktion før de er handlebare.
-
-**Adverse selection.** Hvis du kan handle på en pris, kan andre også. De markeder hvor du ser klarest mispricing er ofte hvor du har mindst information sammenlignet med modparten.
-
-**Drift i bettor-population.** Mediedækning og virale momenter ændrer hvem der handler. En strategi der virkede i Q1 kan dø i Q2 fordi populationen skiftede.
-
-### 1.3 Edge-kilder for dig specifikt
-
-Asymmetrisk fordel for dig versus typisk Polymarket-bettor:
-
-**Finansiel baggrund.** Forståelse af options-prissætning, probabilistisk tænkning, base rates, og Bayesian opdatering. De fleste bettors tænker narrativt, ikke probabilistisk.
-
-**Makro-fluency.** Du kan læse FOMC-statements, ECB-pressekonferencer, og økonomiske data uden friktion. Det er en faktisk informationsedge versus general-purpose bettors.
-
-**Europæisk perspektiv.** Polymarket er US-domineret. Europæiske politiske events (valg, ECB, EU-beslutninger) er systematisk mispriced fordi US-bettors mangler kontekst.
-
-**Disciplineret tilgang.** Hvis systemet bygges ordentligt og du følger det, undgår du de adfærdsmæssige fejl der spiser de fleste bettors edge (FOMO, sunk cost fallacy, overtrading).
-
----
-
-## 2. Marked- og konkurrentanalyse
-
-### 2.1 Platforme
-
-| Platform | Likviditet | Fokus | Tilgængelig fra DK |
-|----------|-----------|-------|---------------------|
-| Polymarket | Højeste | Bredt, US-skæv | Ja (verificér) |
-| Kalshi | Mellem | US-regulert, smal | Nej (US-only) |
-| Manifold | Lav | Play money + real money | Ja |
-| PredictIt | Lav | US-politik | Begrænset |
-| Limitless | Lav | Crypto-native, voksende | Ja |
-
-Polymarket er primær platform. Andre overvåges for cross-market arbitrage og som datakilde til prissammenligning.
-
-### 2.2 Konkurrenter (andre systematiske aktører)
-
-**Domus.fi, Polymarket Analytics, Polysights.** Eksisterende dashboards der viser likviditet, odds-bevægelser og volume. Bruges af mange bettors men giver ikke signaler eller edge. Konkurrence på "data visualization" er tabt.
-
-**Domain-specifikke specialister.** Anonyme bettors med dyb edge på specifikke vertikaler (US-politik, sport, crypto-events). De handler aggressivt og er din primære konkurrence i deres niche. Undgå deres territorier.
-
-**Arbitrageurs.** Aktører der cross-market arbitragerer mellem Polymarket og andre platforme. Ofte ren ren arbitrage er væk inden for minutter, men statistisk arbitrage holder længere.
-
-**General retail.** Sentiment-drevne handlende, FOMO-traders, fan-bettors. Det er disse du vinder fra over tid, ikke fra specialisterne.
-
-### 2.3 Markedsstørrelse og kapacitet
-
-Aktive markeder på Polymarket: typisk 100-300 likvide markeder samtidigt. Total daglig volume varierer fra 5-100 mio USD afhængig af events.
-
-Realistisk kapacitet for én strategi: 50-500 USD per position i niche-markeder, 1.000-10.000 USD i likvide markeder uden at flytte prisen mere end 1 procent. Det er din primære skalerings-constraint.
-
----
-
-## 3. System-arkitektur
-
-### 3.1 Arkitektur-overblik
+For mutually exclusive markeder gælder identiteten:
 
 ```
-[Polymarket API] ──┐
-[Kalshi API]   ────┼──> [Data ingestion] ──> [PostgreSQL]
-[News feeds]   ────┘                              │
-                                                  │
-                                                  ▼
-[Manuel input] ────────────────────────────> [Strategy engine]
-                                                  │
-                                                  ▼
-                                          [Signal generation]
-                                                  │
-                                                  ▼
-                                     [Risk + sizing engine]
-                                                  │
-                                                  ▼
-                                          [Trade dashboard]
-                                                  │
-                                                  ▼
-                                       Manuel eksekvering
-                                                  │
-                                                  ▼
-                                          [Position tracker]
-                                                  │
-                                                  ▼
-                                        [Performance log]
+sum(P(yes)_leg_i for alle ben i) = 1.0
 ```
 
-### 3.2 Tech stack
+Hvis denne sum afviger materielt fra 1.0 efter friktion, eksisterer der ren arbitrage:
 
-Holdt simpelt og pragmatisk. Mål er hurtigt at få noget der virker, ikke arkitektonisk renhed.
+- **sum < 1.0 - friktion**: køb YES på alle ben. Garanteret payout af 1.0 ved resolution. Profit = (1.0 - sum) - friktion.
+- **sum > 1.0 + friktion**: køb NO på alle ben (eller sælg YES kort). Garanteret payout af (n-1).0 for n ben. Profit = (sum - 1.0) - friktion.
 
-**Backend:** Python 3.11+, FastAPI for evt. interne endpoints, asyncio for parallel data-fetch.
+### Hvorfor edge sandsynligvis eksisterer
 
-**Data storage:** PostgreSQL for produktion (timeseries-data, markets, positions). SQLite for prototyping. TimescaleDB-extension hvis volumen vokser.
+Tre strukturelle grunde til at Polymarket har konsistens-fejl:
 
-**Data libraries:** httpx for async HTTP, pandas + polars for analyse, numpy + scipy for statistik, requests for synkrone calls.
+**Likviditetsfragmentering.** Markedet behandler hvert ben som separat. En sælger på "cut 25bp"-benet er ikke nødvendigvis den samme aktør som køber på "hold"-benet. Lokale ubalancer kan ikke uden videre udlignes.
 
-**Backtesting:** Custom rammeværk i Python. Vector-baseret hvor muligt. Ingen brug af færdige biblioteker som backtrader eller zipline, fordi prediction markets ikke ligner aktier nok.
+**Ingen automatisk arbitrage-bot dominans.** I modsætning til crypto-markedsplatforme hvor MEV-bots tager arbitrage-muligheder inden for millisekunder, har Polymarket begrænset systematisk arbitrage-konkurrence. Større aktører kan ignorere små inkonsistenser fordi friktion æder deres profit.
 
-**Frontend / dashboard:** Streamlit til version 1. Hurtigt at bygge, godt til personligt brug. Skift til Next.js eller React kun hvis produktet skal sælges.
+**Friktion-asymmetri.** Markets-makere kvoter typisk bredere spreads på mindre likvide ben. Et event med 4 ben kan have 1-2% spread på likvide ben og 5-8% spread på illikvide ben. Sum af mid-prices kan derfor afvige fra 1.0 uden at det er reel arbitrage, men hvis afvigelsen er stor nok til at overstige worst-case spread, er der reel mulighed.
 
-**Hosting:** Railway, Render eller Fly.io. Start med single-node setup, omkring 20-50 USD/md.
+### Hvorfor edge ikke arbitrageres væk
 
-**Eksekvering:** Manuel via Polymarket UI i fase 1. Polymarket CLOB API til auto-eksekvering i senere fase.
+Selv hvis edge eksisterer, kan den persistere af flere grunde:
 
-**Notifications:** Telegram bot for alerts om signaler og positionsændringer. Simpelt og pålideligt.
+- Skala-grænser: arbitrage på $100-500 niveau er for småt til professionelle aktører
+- Capital efficiency: at låse kapital i flere ben i uger eller måneder har høj alternative omkostning for større aktører
+- Resolution-risk: oracle disputes via UMA kan forstyrre arbitrage selv om matematik er korrekt
+- Eksekvering-risk: partial fills kan efterlade dig med ubalanceret position
 
-### 3.3 Datamodel (PostgreSQL)
+Disse forhindringer er præcis hvad der efterlader plads til en disciplineret retail-aktør med begrænset bankroll.
 
-Kernetabeller:
+### Hvad edge IKKE er
 
-`markets` - alle Polymarket-markeder med metadata
-`market_snapshots` - tidsserier af odds, volume, likviditet (hver 5-15 min)
-`market_trades` - faktiske handler fra orderbook hvis tilgængelige
-`base_rates` - manuel og automatisk database over historiske sandsynligheder
-`signals` - genererede handelssignaler med metadata
-`positions` - aktive og historiske positioner
-`trades` - eksekverede handler med priser, gebyrer, slippage
-`decisions_journal` - struktureret journal for hver position med tese, edge-kilde, exit-kriterier
-`performance` - daglig PnL, drawdown, win rate, edge realisation
+Strategi C er ikke forudsigelse. Vi tager ingen position på hvilket outcome der vinder. Vi tager position på at outcomes samlet skal summere til 1.0 ved resolution.
+
+Hvis vi ikke kan eksekvere ren arbitrage med positiv forventet værdi efter friktion, så er der ingen handel. Vi forsøger ikke at "gætte" hvilken vej inkonsistensen vil bevæge sig.
 
 ---
 
-## 4. Data-pipeline
+## Rule Roadmap
 
-### 4.1 Polymarket API
+PSS har et langsigtet regelsæt for 20 typer probability inconsistencies på Polymarket. Det er dokumenteret i [docs/strategy_c_rules.md](docs/strategy_c_rules.md) og fungerer som roadmap — ikke som noget vi implementerer i én omgang.
 
-Polymarket eksponerer to primære interfaces:
+**Fase 1 fokuserer udelukkende på rule #8:** exhaustive mutually exclusive outcomes skal summere til ca. 100% (`sum(P(yes)) ≈ 1.0` inden for samme neg_risk-event). Event discovery, event snapshots og inconsistency-scanning i Fase 1 er bygget til netop det mønster.
 
-**Gamma API** for markedsdata, metadata, og priser. REST-baseret, ingen authentication krævet for read-only data. Rate limits er overkommelige til polling hver 5-15 min.
+**Fase 2-prioritering** (hvilke yderligere rules vi bygger) afhænger af Fase 1-rapporten: frekvens, persistens, likviditet og eksekverbarhed for sum-to-100%-inkonsistenser.
 
-**CLOB API** for orderbook-data og handelseksekvering. Kræver wallet-signing for eksekvering, men read-only adgang til orderbook er åbent.
-
-Verificér aktuelle endpoints og rate limits på `docs.polymarket.com` før implementering, fordi de ændrer sig løbende.
-
-### 4.2 Ingestion-jobs
-
-| Job | Frekvens | Indhold |
-|-----|----------|---------|
-| Market discovery | Hver time | Find nye markeder, opdater metadata |
-| Price snapshot | Hver 5 min for aktive, hver 30 min for thin | Odds, volume, likviditet |
-| Orderbook depth | Hver 15 min for fokus-markeder | Bid/ask spread, depth |
-| Resolution check | Hver dag | Fang nyligt afgjorte markeder |
-| Cross-platform sync | Hver 30 min | Sammenlign med Kalshi/Manifold hvor relevant |
-
-### 4.3 Eksterne data-kilder
-
-**Politisk/makro:**
-- FRED (Federal Reserve Economic Data) - gratis, dækker US-makro
-- Eurostat API - gratis, dækker EU-makro
-- ECB Statistical Data Warehouse - gratis
-- Danmarks Statistik API - gratis
-- Polymarket-specifikke kilder: PolitiFact, RealClearPolitics polling-aggregater
-
-**News flow:**
-- RSS-aggregator over Reuters, Bloomberg politics, FT, Politico, Axios
-- Twitter/X firehose (kræver API-adgang, 200 USD/md for basic) for breaking-news detection
-- Google News API som fallback
-
-**Cross-checks:**
-- Manifold Markets API for "wisdom of crowds" sammenligning
-- Metaculus for langsigtede forecasts
+**Rules 1–7** (deadline-monotonicitet, threshold-monotonicitet, count-monotonicitet, sub-event vs. parent, osv.) har sandsynligvis bedre retail-edge end ren sum-arbitrage, men kræver markant mere sofistikeret semantisk parsing, dato/threshold-ekstraktion og validering af at to markeder faktisk refererer til samme underlying event. De er bevidst udskudt til efter Fase 1.
 
 ---
 
-## 5. Strategi-bibliotek
+## Empirisk grundlag (skal verificeres før implementering)
 
-Fire konkrete strategier at starte med. Hver strategi har klar hypotese, eksplicitte entry/exit-kriterier, og målbar edge-kilde. Hvis en strategi ikke kan formuleres så skarpt, bygges den ikke.
+Før vi bygger trading-logik, skal vi besvare disse spørgsmål med data:
 
-### 5.1 Strategi A: Base rate fade
+1. Hvor mange aktive events på Polymarket har 3+ mutually exclusive ben?
+2. Hvor ofte afviger sum(YES) fra 1.0 med mere end 3 procentpoint?
+3. Hvor længe persisterer inkonsistenser (sekunder, minutter, timer, dage)?
+4. Hvor stor er likviditeten på det mindst likvide ben? Det er flaskehalsen for arbitrage-størrelse.
+5. Hvor mange inkonsistens-muligheder per uge passerer en realistisk friktion-threshold (eksempelvis 4-6 procentpoint efter spread og fees)?
 
-**Operativ dokumentation (v0):** [docs/strategies/base_rate_fade.md](docs/strategies/base_rate_fade.md) — parametre, afvisningsregler og uge 6-review.
+Forventet resultat baseret på almindelige prediction market-strukturer: 2-10 reelle arbitrage-muligheder per måned med realistisk størrelse $50-500 per trade.
 
-**Hypotese:** Polymarket overreagerer på nylige nyheder og priser markeder længere fra historiske base rates end fundamentet retfærdiggør. Mean-reversion mod base rate over 2-14 dage.
-
-**Edge-kilde:** Behavioral. Recency bias og narrative-driven mispricing.
-
-**Marked-type:** Politiske og makro-events med klare historiske base rates.
-
-**Entry:** Marked priser begivenhed mere end 15 procentpoint væk fra base rate, og base rate er etableret på minimum 10 historiske observationer.
-
-**Exit:** Marked nærmer sig base rate inden for 5 procentpoint, eller fundamental information ændrer base rate-estimatet, eller 30 dage uden bevægelse.
-
-**Position size:** 1-3 procent af bankroll per position.
-
-**Forventet edge:** 3-8 procent per trade efter friktion, hit rate 55-65 procent.
-
-### 5.2 Strategi B: Likviditet-screen for stale prices
-
-**Hypotese:** Thin liquidity markeder bevæger sig langsomt på nye informationer fordi der ikke er nok markeds-deltagere. Hurtig informationsindsamling giver edge i de første 2-12 timer efter relevant nyhed.
-
-**Edge-kilde:** Informational + speed.
-
-**Marked-type:** Niche-events, europæiske politiske begivenheder, makro-events uden for prime trading hours.
-
-**Entry:** Triggeret af news-detection system. Marked har ikke bevæget sig markant (mindre end 5 procentpoint) efter relevant nyhed identificeret minimum 1 time tidligere.
-
-**Exit:** Pris bevæger sig 50-80 procent af forventet justering, eller efter 48 timer.
-
-**Position size:** 0,5-2 procent af bankroll. Mindre fordi exit-likviditet er begrænset.
-
-**Forventet edge:** 5-15 procent per trade når den udløses. Lav frekvens (5-15 trades/måned).
-
-### 5.3 Strategi C: Cross-market konsistens
-
-**Hypotese:** Logisk relaterede markeder på Polymarket eller på tværs af platforme er ikke altid internt konsistente. Når priser brydes med matematik (P(A) + P(not A) > 1, eller P(A og B) > P(A)), eksisterer der ren eller statistisk arbitrage.
-
-**Edge-kilde:** Strukturel. Ren matematik, ingen forudsigelse krævet.
-
-**Marked-type:** Multi-leg events, conditional markets, samme event på flere platforme.
-
-**Entry:** Pris-inkonsistens over 3 procentpoint efter friktion.
-
-**Exit:** Konsistens genoprettet eller markeder resolverer.
-
-**Position size:** Op til 5 procent af bankroll fordi risiko er lavere.
-
-**Forventet edge:** 2-5 procent per trade efter friktion. Lav frekvens men høj sandsynlighed.
-
-### 5.4 Strategi D: Volatility crush før resolution
-
-**Hypotese:** Markeder med uger til resolution ofte ikke fuldt indpriser tidsdiskontering og volatilitet. Specifikke positioner kan tages for at fange tidsforfald lignende options theta.
-
-**Edge-kilde:** Strukturel + behavioral.
-
-**Marked-type:** Markeder hvor en hændelse er højst sandsynlig (P > 90 eller P < 10) men prises langt fra extreme.
-
-**Entry:** Fundamentalt højkonfidens estimat (over 90 procent eller under 10 procent) men marked priser i 75-90 procent eller 10-25 procent range, og resolution er inden for 30 dage.
-
-**Exit:** Pris konvergerer mod fundamentalt estimat, eller fundamental ændres.
-
-**Position size:** 1-2 procent af bankroll.
-
-**Forventet edge:** Moderat (3-7 procent) men konsistent hvis kalibrering er ordentlig.
-
-### 5.5 Strategi-uafhængige regler
-
-For alle strategier gælder:
-
-Ingen position før eksplicit pre-trade tjekliste udfyldes i decisions journal.
-
-Ingen position over 5 procent af bankroll uanset edge-estimat.
-
-Ingen samlet eksponering over 30 procent af bankroll mod én korreleret begivenhed (alle Trump-relaterede markeder tæller som én korreleret position).
-
-Stopper trading i en strategi efter 3 konsekutive negative måneder, indtil årsag er forstået.
+Hvis empirisk research viser 0 muligheder efter friktion: Strategi C er heller ikke en levedygtig retning. Vi har lært det med sikkerhed, og kan tage en kvalificeret beslutning om at parkere projektet.
 
 ---
 
-## 6. Backtesting-metodologi
+## Realistiske forventninger
 
-### 6.1 Princip
+### Indkomst
 
-Backtesting på prediction markets er sværere end på aktier fordi:
+Med 5.000-10.000 USD bankroll, realistisk forventning er:
+- Frekvens: 2-10 trades per måned
+- Edge per trade efter friktion: 2-6 procentpoint
+- Average trade-størrelse: 100-500 USD (begrænset af min-leg-likviditet)
+- Forventet månedlig indkomst: 50-400 USD
 
-Markedet er ungt (Polymarket meningsfuld likviditet kun siden 2023-2024)
-Historiske orderbook-data er svære at få
-Resolutions er hændelses-specifikke, ikke kontinuerlige
-Survivorship bias er reel (mange markeder lukkes uden resolution)
+Det er beskedent. Det er IKKE en strategi der erstatter en indkomst. Det er en strategi der kan generere supplerende afkast med relativt lav strategi-risiko (ingen forudsigelses-risiko).
 
-Det betyder backtest skal være konservativ. Forvent at live performance er 30-50 procent dårligere end backtest pga ovenstående.
+### Tidsforbrug
 
-### 6.2 Walk-forward design
+- Aktiv monitoring: 30-60 min/dag
+- Eksekvering pr. trade: 5-15 min (multi-leg kræver omhu)
+- Vedligehold og review: 2-4 timer/uge
 
-Periode opdeles i:
+Total: 5-10 timer/uge ved aktiv brug.
 
-`In-sample` (training): bruges til strategi-formulering og parameter-valg
-`Out-of-sample` (validation): bruges til at validere strategi efter formulering
-`Holdout`: rør ikke før strategien er færdigformuleret
+### Skalering
 
-Eksempel split: 2023 Q1-Q3 in-sample, 2023 Q4 - 2024 Q2 out-of-sample, 2024 Q3 - 2025 holdout.
+Strategi C skalerer ikke godt opad. Likviditet på Polymarket sætter en hård grænse omkring $1000-3000 per trade. Selv om du havde en større bankroll, ville du ikke kunne deploye den meningsfuldt.
 
-### 6.3 Realistiske friktion-antagelser
-
-| Friktion | Antagelse | Note |
-|----------|-----------|------|
-| Bid-ask spread | 1-3% | Konservativt, antag du tager spread |
-| Slippage | 0,5-2% | Større i thin liquidity |
-| Gas fees | 0,1-0,5 USD per trade | Polygon network |
-| Resolution disputes | 2-5% af forventet edge | Forsikring mod oracle-risk |
-| Total friction | 3-7% per round trip | Realistisk for fase 1 |
-
-### 6.4 Statistisk signifikans
-
-For at konkludere edge er reel kræves:
-
-Minimum 30 trades per strategi før konklusioner
-Sharpe ratio over 1.0 efter friktion (over 1.5 hvis lav frekvens)
-Eksplicit hypotese-test med p-værdi under 0.05 (ikke fishing)
-Sanity check: kan edge forklares af lookahead bias, survivorship, eller cherry-picking
-
-Vær brutal her. De fleste backtests viser falsk edge fordi metodologien er sloppy.
+Det er en feature, ikke en bug. Det er præcis hvorfor inkonsistenser persisterer: store aktører kan ikke meningsfuldt skalere ind i dem.
 
 ---
 
-## 7. Risk management
+## Risici
 
-### 7.1 Tre niveauer af risiko
+### Strategi-specifikke risici
 
-**Position-niveau:** Maks 5 procent af bankroll per position. Mindre i thin markets (1-2 procent).
+**Partial fill-risiko.** Hvis du eksekverer ben 1 og 2 men ben 3 ikke kan fyldes med fuld size, har du ubalanceret eksponering. Mitigation: konservativ size-targeting (50-70% af min-leg-depth), aldrig fyld én leg ad gangen i lav-likviditet markeder, accept at nogle muligheder slipper fordi du ikke kan fylde alle ben.
 
-**Korrelations-niveau:** Maks 30 procent af bankroll mod én underliggende begivenhed eller stærkt korrelerede begivenheder. Klassifikation manuelt, ikke automatisk.
+**Spread-konvergens før eksekvering.** En sum-afvigelse på 5 procentpoint målt på mid-priser kan have eksekveringspris på 2 procentpoint efter spread. Vi skal måle inkonsistens på "executable" priser (bid for at sælge, ask for at købe), ikke på mid.
 
-**Portefølje-niveau:** Maks 60 procent allokeret samtidigt. Resten er tørt krudt for nye muligheder.
+**Resolution-uklarhed.** Hvis Polymarket's resolution-kriterier er vage, kan flere ben "vinde" eller ingen vinde, hvilket bryder vores antagelse om mutually exclusive. Mitigation: undgå markeder med vage formuleringer, hold sig til events med klare offentlige resolution-kilder.
 
-### 7.2 Drawdown-regler
+### Operationelle risici
 
-| Drawdown fra peak | Handling |
-|-------------------|----------|
-| 10% | Review notater, identificer fejl |
-| 15% | Reducer position sizes med 50% |
-| 20% | Stop nye positioner, kun lukning |
-| 25% | Hård stop, fuld revurdering |
+**Eksekvering-timing.** Tre-bens trade kræver tre separate order placements. Hvis priser bevæger sig mellem trades, mister du noget edge. Mitigation: brug limit orders med passende slippage tolerance, eller batched market orders hvor det er muligt.
 
-Drawdown-regler er ikke valgfri. De er den vigtigste del af systemet fordi de begrænser fatal risk når strategi-edge midlertidigt forsvinder.
+**Oracle dispute.** UMA-baseret resolution kan blive disputeret. Hvis ét ben resolverer "anderledes end forventet", bryder hele arbitrage. Mitigation: undgå events med kendt kontrovers, diversificér resolutions over tid.
 
-### 7.3 Resolution-risk håndtering
+**Kapital-binding.** Multi-leg arbitrage låser kapital indtil event resolverer. Et FOMC-event kan låse kapital i 1-4 uger. Et valg-event kan låse kapital i måneder. Mitigation: ikke mere end 30% af bankroll allokeret samtidigt.
 
-Læs UMA oracle-dokumentation og kig på historiske disputes før hver position. Visse markeder har strukturel resolution-risk (vagt formulerede betingelser, kontroversielle outcomes). Disse undgås uanset edge-estimat.
+### Modelfejl-risici
 
-Allokér maksimalt 10 procent af bankroll mod markeder der resolveres inden for samme 7-dages vindue. Det beskytter mod systemic oracle-fejl.
+**Falsk inkonsistens fra dårlig leg-identifikation.** Hvis vores system fejlagtigt grupperer ikke-mutually-exclusive markeder, beregner vi inkonsistens forkert. Mitigation: streng template-baseret identifikation af events, manuel verifikation af første 50 detected events.
 
-### 7.4 Operationel risk
-
-Wallet-sikkerhed: brug dedicated hardware wallet eller separat hot wallet med kun aktiv kapital. Aldrig hele bankroll i hot wallet.
-
-Backup af signal-historik og positioner ud over Polymarket selv. Hvis platformen går ned permanent, skal du have egen record.
-
-Skat: track alle trades og resolutions for skatteregnskab. Konsultér revisor om dansk skattebehandling før første live trade.
+**Conditional probabilities.** Hvis to "ben" i virkeligheden er betingede begivenheder ("Will Fed cut AND market rise"), så er P(yes_a) + P(yes_b) ikke nødvendigvis 1.0. Mitigation: kun stol på events hvor Polymarket eksplicit markerer dem som neg_risk eller mutually exclusive.
 
 ---
 
-## 8. Position sizing
+## Sammenhæng med eksisterende kode
 
-### 8.1 Modificeret Kelly
+Hvad fra det eksisterende projekt der genbruges:
 
-Klassisk Kelly criterion overestimerer optimal size pga model-usikkerhed. Brug fractional Kelly med fraction = 0.25 (kvart-Kelly).
+**Genbruges direkte:**
+- DB-infrastructure (markets, snapshots, positions)
+- Gamma og CLOB klienter
+- Market discovery og price snapshot pipeline
+- Scheduler
+- Telegram notifications
+- Logging og health-server
+- Dashboard skelet
+- Risk sizing-modul (modificeres)
 
-Formula for binary outcome:
+**Bygges nyt:**
+- Event discovery pipeline (identificering af multi-leg events)
+- Inconsistency detection-engine
+- Multi-leg signal-generator
+- Eksekvering-koordinator (samtidig multi-leg eksekvering)
+- Arbitrage-specifik backtesting
+- Tilpasset dashboard for multi-leg visning
 
-```
-f* = (b*p - q) / b
-hvor:
-  f* = fraction af bankroll
-  b = nettoodds (payout / risk)
-  p = sandsynlighed for win
-  q = 1 - p
+**Fjernes:**
+- Hele base_rates/-mappen
+- base_rate_fade strategi
+- FRED-integration
+- Eksisterende backtesting (Strategi A-specifik)
 
-Anvendt size = max(0, min(0.25 * f*, 0.05))
-```
-
-5 procent cap uanset Kelly-output. Det er hård regel.
-
-### 8.2 Edge-justering
-
-Hvis edge-estimat er over 10 procentpoint, brug fuld kvart-Kelly. Hvis edge er 5-10 procentpoint, halver. Hvis under 5 procent, handl ikke (efter friktion er edge for lille).
-
-### 8.3 Likviditet-justering
-
-Position size må ikke flytte prisen mere end 1 procent. Tjek orderbook depth før hver entry. Hvis fuld position kræver flere fills over timer, accepter mindre position frem for at jage likviditet.
-
----
-
-## 9. Eksekverings-workflow
-
-### 9.1 Daglig rutine (estimeret 1-2 timer/dag aktiv)
-
-**Morgen (30 min):**
-Tjek dashboard for nye signaler.
-Læs nyheds-aggregator for relevante events.
-Opdater base rates hvis nye data.
-
-**Midt på dagen (15-30 min):**
-Tjek aktive positioner mod exit-kriterier.
-Vurder nye signaler genereret af strategi-engine.
-Eksekver eventuelle entries eller exits manuelt.
-
-**Aften (30 min):**
-Log dagens trades i decision journal.
-Review eventuelle resolutions.
-Opdater performance-tabel.
-
-### 9.2 Pre-trade tjekliste (gennemgås før hver position)
-
-1. Hvilken strategi udløser dette signal?
-2. Hvad er min eksplicitte edge-tese i én sætning?
-3. Hvad er base rate-estimat og min konkrete sandsynlighedsvurdering?
-4. Hvad er forventet edge i procentpoint efter friktion?
-5. Hvad er position size baseret på Kelly + cap + likviditet?
-6. Hvad er eksplicit exit-kriterium (pris, tid, eller event)?
-7. Hvilke scenarier får mig til at lukke positionen før exit-kriterium?
-8. Hvad er den stærkeste counter-argument mod min tese?
-9. Hvilken bias kunne forklare hvorfor jeg ser edge her?
-10. Hvis denne handel taber maksimalt, hvad er PnL-impact?
-
-Hvis nogen af de 10 spørgsmål ikke kan besvares præcist, handles der ikke.
-
-### 9.3 Post-trade journal
-
-Hver position dokumenteres ved entry og ved exit. Ved exit også:
-
-Var udfaldet i overensstemmelse med tesen?
-Hvis ikke, var jeg uheldig eller var tesen forkert?
-Hvad ville jeg gøre anderledes næste gang?
-Var min sandsynlighedsvurdering kalibreret (sammenlign med base rate over tid)?
-
-Journal review hver 4. uge for at identificere mønstre i fejl.
+Se CLEANUP.md for konkret oprydningsplan.
 
 ---
 
-## 10. KPI'er og evaluering
+## Faser
 
-### 10.1 Performance-metrics
+### Fase 0: Cleanup (1 uge)
 
-| Metric | Mål fase 1 (paper) | Mål fase 2 (live) | Threshold |
-|--------|--------------------|--------------------|-----------|
-| Hit rate | >55% | >55% | <50% over 50 trades = problem |
-| Average edge realiseret | >3% | >2% efter friktion | Negativt = stop |
-| Sharpe ratio | >1.0 | >1.0 | <0.5 = revurder |
-| Max drawdown | <20% | <20% | >25% = hård stop |
-| Calibration error | <10% | <10% | Mål: predicted P matcher realiseret P |
-| Trades per måned | 10-30 | 10-30 | <5 = ikke nok signal |
+Fjern Strategi A-kode, opdater DB-schema, refactor scheduler. Beskrevet i CLEANUP.md.
 
-### 10.2 Kalibrerings-test
+### Fase 1: Empirisk research (2-3 uger)
 
-Hver måned: tag alle positioner hvor du estimerede P = 0.7. Hvor stor andel resolved positivt? Hvis tæt på 70 procent, er du kalibreret. Hvis under 60 procent, er du systematisk overconfident. Hvis over 80 procent, er du systematisk underconfident og lader edge ligge.
+Mål: verificér at inkonsistenser overhovedet eksisterer på Polymarket i meningsfuldt omfang.
 
-Kalibrering er vigtigere end hit rate. En velkalibreret estimator med 55 procent hit rate er værdifuld. En miskalibreret estimator med 65 procent hit rate er ikke.
+Implementér kun event-discovery og event-snapshot pipeline. Ingen trading-logik.
 
-### 10.3 Strategi-specifik review
+Track inkonsistenser dagligt i 2-3 uger. Generer rapport:
+- Antal aktive multi-leg events
+- Frekvens af inkonsistenser over forskellige thresholds (1pp, 3pp, 5pp)
+- Persistens-tid af inkonsistenser
+- Likviditets-distribution per ben
 
-Hver strategi reviewes individuelt hver 8. uge:
+Beslutning efter Fase 1: gå videre til Fase 2, eller acceptér at edge ikke eksisterer i målbar form.
 
-Genererer den signaler i forventet frekvens?
-Er edge-estimat kalibreret mod realiseret performance?
-Er der ændringer i markedstruktur der dræber edgen?
-Skal parametre justeres, eller skal strategien pensioneres?
+### Fase 2: Signal-engine (2 uger, kun hvis Fase 1 validerer hypotesen)
 
----
+Byg `InconsistencyArbitrageStrategy` der:
+- Scanner events for sum-afvigelser
+- Bekræfter at afvigelser overlever friktion-test
+- Beregner optimal size per ben baseret på min-leg-likviditet
+- Genererer multi-leg signal
 
-## 11. 12-ugers faseplan
+### Fase 3: Eksekvering og paper trading (2 uger)
 
-### Uge 1-2: Setup og data-pipeline
+Byg eksekvering-koordinator med samtidig multi-leg placement. Paper trade i 2 uger.
 
-Setup projekt-repo i Cursor med Python + PostgreSQL.
-Implementer Polymarket Gamma API integration.
-Bygge market discovery + snapshot jobs.
-Setup database-schema for markets og snapshots.
-Mål: Database med løbende opdatering af alle aktive markeder.
+### Fase 4: Live capital med begrænset bankroll (8+ uger)
 
-### Uge 3-4: Manuel research og første handler
+Start med 1000-2000 USD. Track real performance vs paper. Skaler op kun hvis live matcher paper.
 
-Brug 20+ timer på Polymarket selv. Handl med 50-200 USD positioner.
-Tag noter om markedsdynamik, friktion, orderbook adfærd.
-Identificer 2-3 vertikaler hvor du føler intuitiv edge.
-Mål: Dyb forståelse af markedets mekanik fra hands-on erfaring.
-
-### Uge 5-6: Base rate database og første strategi
-
-Byg base rate database for makro-events (Fed-beslutninger, GDP-prints, inflation prints, ECB-møder).
-Implementer strategi A (base rate fade) som første konkrete strategi.
-Setup signal-generation pipeline.
-Mål: Første automatiserede signaler genereret dagligt.
-
-### Uge 7-8: Backtesting-framework og strategi B
-
-Byg backtesting-engine med walk-forward design.
-Backtest strategi A på historisk data (2024).
-Implementer strategi B (likviditet-screen).
-Mål: Begge strategier backtestede, dokumenteret historisk performance.
-
-### Uge 9-10: Dashboard og risk-system
-
-Byg Streamlit dashboard for live signaler og positioner.
-Implementer position sizing og risk-checks i kode.
-Setup Telegram-alerts for signaler.
-Implementer decision journal-flow.
-Mål: Komplet workflow fra signal til journal.
-
-### Uge 11-12: Strategi C, D og paper trading
-
-Implementer strategi C (cross-market) og D (volatility crush).
-Start systematisk paper trading af alle 4 strategier.
-Track alle signaler og hypotetiske entries/exits.
-Mål: 4 strategier kører paper i systematisk format, klar til 3 måneders paper trading-fase.
-
-### Måned 4-6: Paper trading-fase
-
-Fortsæt paper trading med alle 4 strategier.
-Månedlige reviews af performance, kalibrering, og edge-realisering.
-Iterér på strategier baseret på data.
-Beslutning efter 12 uger paper: går nogle strategier live, eller stop.
-
-### Måned 7+: Live trading (hvis paper validerer edge)
-
-Start med 25 procent af planlagt bankroll.
-Skaler op gradvis hvis live performance matcher paper.
-Fortsæt journal, reviews, og kalibrerings-tests.
+Total tid fra cleanup til live: cirka 3 måneder med 10 timer/uge.
 
 ---
 
-## 12. Risici og mitigation
+## Hvad denne strategi IKKE er
 
-### 12.1 Strategiske risici
+For at undgå at fælder vi gentager:
 
-**Overfitting i backtest.** Det største problem ved kvant-systemer. Mitigation: walk-forward validation, holdout-data, eksplicitte hypoteser formuleret før test, brutal ærlighed om edge-kilde.
+Den er ikke en mean-reversion-strategi baseret på fair value-modeller. Vi har lært at fair value-modeller mod velinformerede markeder ikke virker.
 
-**Edge-erosion over tid.** Markeder bliver mere effektive. Mitigation: løbende monitorering af edge-realisering, villighed til at pensionere strategier, dyb specialisering i niche-vertikaler.
+Den er ikke afhængig af forudsigelse. Vi tager ingen view på hvilket outcome der vinder.
 
-**Behavioral drift hos dig selv.** Selv med systemet er der fristelse til at handle off-system. Mitigation: hård regel om at off-system trades trackes separat så du kan måle om de underpresterer (de gør altid).
+Den er ikke skalerbar til store summer. Forvent ikke at gå fra 5k til 50k bankroll i denne strategi.
 
-### 12.2 Operationelle risici
-
-**Platform-risk.** Polymarket kan blokere danske brugere, regulatoriske ændringer kan ramme. Mitigation: hold ikke mere end nødvendigt på platformen, brug egen wallet-custody hvor muligt, monitorer regulatorisk landskab.
-
-**Oracle/resolution-risk.** UMA disputes kan koste penge. Mitigation: undgå vagt formulerede markeder, diversifér resolutions over tid, allokér ikke for meget mod én resolution-dato.
-
-**Tech-risk.** Bugs i system kan generere falske signaler eller misse entries. Mitigation: alle trades manuel-confirmeret i fase 1, automatiseret kun efter dokumenteret track record.
-
-### 12.3 Personlige risici
-
-**Tid-commitment underskydes.** 10 timer/uge i 24 måneder er reel commitment. Hvis det skrider, dør systemet. Mitigation: gør tiden non-negotiable i kalender, monitorer hvor mange timer faktisk bruges.
-
-**Tabsstrækninger demoraliserer.** Selv velbyggede systemer har drawdown-perioder på 20+ procent. Mitigation: forvent dem, præ-commit til drawdown-regler, læs Howard Marks' memos om random walks under tabstider.
-
-**Confirmation bias om edge.** Du vil gerne tro systemet virker. Mitigation: brutal kalibrerings-test, ekstern accountability (skriv om performance offentligt, eller del med en betroet sparringspartner), villighed til at stoppe hvis data siger stop.
-
-### 12.4 Regulatoriske og skattemæssige risici
-
-**Dansk skatteforhold uklart.** Gevinster fra Polymarket kan klassificeres som spilgevinster, kapitalindkomst, eller næringsindkomst afhængig af aktivitetsniveau og hensigt. Konsultér revisor før første live-trade.
-
-**EU regulering af crypto-prediction markets.** MiCA og lignende rammeværk udvikler sig. Monitorer.
-
-**Polymarkets adgang fra Danmark.** Verificér løbende at brug er tilladt og overhold KYC/AML hvor relevant.
+Den er ikke "set and forget". Inkonsistenser opstår og forsvinder. Manuel triage er stadig nødvendig.
 
 ---
 
-## 13. Næste skridt
+## Stop-kriterier for hele projektet
 
-### 13.1 Umiddelbart (denne uge)
+Hvis efter Fase 1 (3 uger empirisk research):
+- 0 inkonsistenser over 4 procentpoint efter friktion er observeret
+- Eller alle inkonsistenser persisterer i under 5 minutter (umuligt at eksekvere på)
+- Eller min-leg-likviditet er konsistent under $50 (ingen meningsfuld størrelse)
 
-1. Setup Polymarket-konto hvis ikke allerede. Lav 3-5 små test-handler (10-50 USD) for at forstå UX, fees og resolution-flow.
-2. Setup Python-projekt i Cursor med struktur klar til implementation.
-3. Verificér adgang til Polymarket Gamma API ved at lave første kald.
-4. Konsultér revisor om skatteforhold for Polymarket-gevinster i Danmark.
+Så stoppes projektet, og Polymarket arbitrage konstateres ikke at være levedygtig retail-strategi.
 
-### 13.2 Næste 2 uger
+Hvis efter Fase 4 (8 uger live):
+- Realiseret PnL er negativ efter friktion og kapital-omkostning
+- Eller drawdown overstiger 25% af bankroll
+- Eller fill rate er under 60% (kan ikke pålideligt eksekvere)
 
-5. Implementer market discovery og snapshot pipeline (uge 1-2 plan).
-6. Læs Polymarket-dokumentation grundigt og note begrænsninger.
-7. Læs 3-5 akademiske papers om prediction markets og bettor-biases (forslag: Wolfers og Zitzewitz "Prediction Markets" Journal of Economic Perspectives 2004, og nyere papers om Polymarket specifikt).
+Så stoppes live trading og projektet pauses for vurdering.
 
-### 13.3 Beslutninger der skal tages snart
-
-Hvilken niche-vertikal vil du gå dybt på først? Forslag: makro-events (Fed, ECB, inflation prints) som primær, europæiske politiske events som sekundær.
-
-Vil dette projekt være privat eller har du intention om at dele performance offentligt? Offentlig accountability har psykologisk værdi men også risici.
-
-Hvad er smerte-pointen hvor du stopper? Skriv det ned nu, ikke når du er i drawdown.
-
----
-
-## Appendix A: Anbefalet læsning
-
-- *Thinking in Bets* af Annie Duke (decision-making under usikkerhed)
-- *Superforecasting* af Philip Tetlock (kalibrering og forecasting)
-- *The Signal and the Noise* af Nate Silver (probabilistisk tænkning)
-- *Fortune's Formula* af William Poundstone (Kelly criterion historie)
-- Wolfers og Zitzewitz "Prediction Markets" JEP 2004 (akademisk fundament)
-- Howard Marks memos (mental modeller om markedscykler og risiko)
-
-## Appendix B: Cursor-specifikke instruktioner
-
-Når du arbejder med dette i Cursor, hold dokumentet som `STRATEGY.md` i repo-root. Brug det som kontekst i Cursor-chats ved at @-referere til det. Opdater løbende efterhånden som strategier itereres.
-
-Lav også separate filer:
-- `IMPLEMENTATION.md` for tekniske beslutninger og kode-struktur
-- `JOURNAL.md` for løbende trading-noter og refleksioner
-- `PERFORMANCE.md` for månedlige performance-reviews
-
-Skift mellem dem efter behov, og lad Cursor have alle som kontekst når der ændres strategi-kode.
+Disse stop-kriterier er ikke valgfri. De er forsikring mod sunk cost fallacy.

@@ -8,11 +8,11 @@ from datetime import datetime
 from functools import lru_cache
 from typing import Any, TypeVar
 
-from sqlalchemy import create_engine, func, select
+from sqlalchemy import create_engine, func, select, text
 from sqlalchemy.orm import Session, sessionmaker
 
 from pss.config import settings
-from pss.db.models import DecisionJournal, Market, MarketSnapshot, PerformanceDaily, Position, Signal
+from pss.db.models import DecisionJournal, Event, Market, MarketSnapshot, PerformanceDaily, Position, Signal
 from pss.markets.urls import polymarket_market_url
 
 T = TypeVar("T")
@@ -65,7 +65,7 @@ class JournalRow:
 @dataclass(frozen=True, slots=True)
 class PipelineStats:
     active_markets: int
-    base_rate_markets: int
+    tracked_events: int
     snapshot_count: int
     last_snapshot_at: datetime | None
     signal_counts: dict[str, int]
@@ -207,9 +207,14 @@ def fetch_pipeline_stats() -> PipelineStats:
                 ~Market.is_closed,
             ),
         )
-        br = session.scalar(
-            select(func.count()).select_from(Market).where(Market.has_base_rate.is_(True)),
+        br = 0
+        events_exists = session.scalar(
+            select(text("to_regclass('public.events') IS NOT NULL")),
         )
+        if events_exists:
+            br = session.scalar(
+                select(func.count()).select_from(Event).where(Event.is_active.is_(True)),
+            )
         snaps = session.scalar(select(func.count()).select_from(MarketSnapshot))
         last_snap = session.scalar(select(func.max(MarketSnapshot.snapshot_at)))
 
@@ -222,7 +227,7 @@ def fetch_pipeline_stats() -> PipelineStats:
 
         return PipelineStats(
             active_markets=int(active or 0),
-            base_rate_markets=int(br or 0),
+            tracked_events=int(br or 0),
             snapshot_count=int(snaps or 0),
             last_snapshot_at=last_snap,
             signal_counts=signal_counts,

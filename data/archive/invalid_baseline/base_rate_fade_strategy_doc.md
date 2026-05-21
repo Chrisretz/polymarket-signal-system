@@ -1,10 +1,13 @@
 # Strategi A: Base rate fade (v0)
 
+**Arkiveret:** maj 2026 (pivot til Strategi C)  
+**Original sti:** `docs/strategies/base_rate_fade.md`
+
 **Status:** Implementeret uge 5–6. Paper trading — ingen live trades.  
-**Kode:** `src/pss/strategies/base_rate_fade.py`  
+**Kode:** `src/pss/strategies/base_rate_fade.py` *(slettet i Fase 1 cleanup)*  
 **Strategi-slug:** `base_rate_fade`
 
-Hypotesen og den overordnede ramme står i [STRATEGY.md §5.1](../../STRATEGY.md). Dette dokument er den **operative** reference efter uge 6 review og tuning.
+Hypotesen og den overordnede ramme stod i STRATEGY.md §5.1. Dette dokument var den **operative** reference efter uge 6 review og tuning.
 
 ---
 
@@ -27,7 +30,12 @@ Polymarket overprissætter eller underprissætter begivenheder med kendt histori
 | `has_base_rate = true` (classifier-match) | Ja |
 | Aktivt, ikke lukket | Ja |
 | Resolution inden for **30 dage** (eller ukendt dato) | `MAX_HORIZON_DAYS` |
-| Seneste snapshot: likviditet ≥ **$7 500** | `MIN_LIQUIDITY_USD` |
+| Seneste snapshot: likviditet ≥ **$7 500** | `MIN_LIQUIDITY_USD` |
+
+**Horisont vs. flagging:** `apply_flags` sætter `has_base_rate=true` på hold-markeder med mødedato op til **60 dage** ude (`MEETING_HORIZON_DAYS` i templates). Strategien scanner kun markeder med `end_date` inden for **30 dage**. Markeder i vinduet 31–60 dage er altså flaggede til overvågning, men genererer ikke signaler før de er inden for handels-horisonten.
+
+| Krav | Implementeret |
+|------|----------------|
 | Base rate i DB med `sample_size ≥ 10` | `MIN_SAMPLE_SIZE` |
 | Afvigelse mellem marked (YES) og base rate ≥ **18 pp** | `MIN_DEVIATION_PCT` |
 | Risk-engine godkender (Kelly ¼, max 5 % bankroll) | `src/pss/risk/` |
@@ -66,7 +74,7 @@ Disse regler kommer fra uge 6 manuelt review. **Ingen position** — heller ikke
 
 ## 4. Fair value: centralbankmøder
 
-**Kode:** `src/pss/base_rates/cb_meeting_fair.py`
+**Kode:** `src/pss/base_rates/cb_meeting_fair.py` *(slettet)*
 
 For kategorier `fed_*`, `ecb_*`, `boj_*` bruges **ikke** statiske expert priors til fair value eller signaler:
 
@@ -85,19 +93,14 @@ Forventet ændring (bps) = `(forward − policy) × 100`. Det mappes til P(hold|
 
 Signal-metadata: `fair_value_source`, `fair_value_probability`, `cb_*` felter.
 
-Test: `uv run python scripts/test_cb_meeting_fair.py`
-
 ---
 
 ## 5. Classifier (base rates)
 
-**Kode:** `src/pss/base_rates/classifier.py`
+**Kode:** `src/pss/base_rates/classifier.py` *(slettet)*
 
-- Centralbank: Fed / ECB / BOJ (hold, cut, hike) — **rente-handling kun fra `question`**, ikke `description` (undgår «no change» i resolutions-tekst).
+- Centralbank: Fed / ECB / BOJ (hold, cut, hike) — **rente-handling kun fra `question`**, ikke `description`.
 - Polymarket «announce 25/50+ bps …» → **ingen** kategori (for granulært).
-- Test: `uv run python scripts/test_classifier.py`
-
-Efter ændring: `apply_base_rate_flags.py`, `seed_base_rates.py`, `expire_stale_new_signals.py`, derefter `run_signal_pipeline.py`.
 
 ---
 
@@ -116,7 +119,7 @@ Efter ændring: `apply_base_rate_flags.py`, `seed_base_rates.py`, `expire_stale_
 
 ---
 
-## 7. Pipeline og drift
+## 7. Pipeline og drift (historisk)
 
 ```
 market_discovery (1t) → price_snapshot (10m) → signal_scan (1t)
@@ -125,17 +128,6 @@ market_discovery (1t) → price_snapshot (10m) → signal_scan (1t)
                               ↓
                     risk → persist (NEW) → Telegram (nye only)
 ```
-
-| Kommando | Formål |
-|----------|--------|
-| `uv run python scripts/run_signal_pipeline.py` | Fuld scan manuelt |
-| `uv run python scripts/list_signals.py` | NEW-signaler |
-| `uv run python scripts/review_all_new_signals.py` | Batch-review |
-| `uv run python scripts/review_signal.py <id>` | Ét signal |
-| `uv run python scripts/pre_trade_journal.py --signal-id <id>` | Pre-trade + ACCEPTED/REJECTED |
-| `uv run python -m pss.scheduler` | Lokal scheduler (ellers Railway) |
-
-**Scheduler:** Én primær instans (Railway anbefalet). `LOG_LEVEL=WARNING` i prod.
 
 ---
 
@@ -151,16 +143,8 @@ market_discovery (1t) → price_snapshot (10m) → signal_scan (1t)
 
 ---
 
-## 9. Beslutningskriterium (uge 7+)
+## 9. Endelig konklusion (maj 2026)
 
-Strategi A **fortsætter** mod backtest hvis:
+Strategi A **frosset permanent**. Fair value-modellen var ikke informativ nok til velinformerede CB-markeder. Projektet pivoterer til Strategi C (cross-market konsistens).
 
-1. Classifier producerer stabile matches på **rigtige** markedstyper (CB hold/cut/hike, CPI surprise, NFP, …).
-2. Manuelt review af næste 5–10 signaler: mindst nogle med **plausible** tese og edge &lt; 35 %.
-3. Backtest (efter friktion) viser edge der ikke tydeligt er lookahead/survivorship.
-
-Ellers: yderligere classifier-arbejde eller pause strategi A før strategi B.
-
----
-
-*Sidst opdateret: uge 6 fredag (2026-05-17).*
+*Sidst opdateret: uge 6 fredag (2026-05-17). Arkiveret maj 2026.*
