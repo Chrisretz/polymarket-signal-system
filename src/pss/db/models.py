@@ -422,3 +422,158 @@ class NewsEvent(Base):
         Index("idx_news_published", published_at.desc()),
         Index("idx_news_tags", "relevance_tags", postgresql_using="gin"),
     )
+
+
+class TrackedGroup(Base):
+    __tablename__ = "tracked_groups"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    name: Mapped[str] = mapped_column(Text, nullable=False)
+    description: Mapped[str | None] = mapped_column(Text)
+    status: Mapped[str] = mapped_column(
+        Text,
+        nullable=False,
+        default="active",
+        server_default=text("'active'"),
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+    )
+
+    markets: Mapped[list[TrackedGroupMarket]] = relationship(
+        back_populates="group",
+        cascade="all, delete-orphan",
+    )
+    relations: Mapped[list[TrackedGroupRelation]] = relationship(
+        back_populates="group",
+        cascade="all, delete-orphan",
+    )
+    snapshots: Mapped[list[TrackedGroupSnapshot]] = relationship(back_populates="group")
+    group_events: Mapped[list["TrackedGroupEvent"]] = relationship(
+        back_populates="group",
+        cascade="all, delete-orphan",
+    )
+
+    __table_args__ = (Index("idx_tracked_groups_status", "status"),)
+
+
+class TrackedGroupEvent(Base):
+    __tablename__ = "tracked_group_events"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    group_id: Mapped[int] = mapped_column(
+        BigInteger,
+        ForeignKey("tracked_groups.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    event_id: Mapped[str] = mapped_column(Text, nullable=False)
+    event_title: Mapped[str] = mapped_column(Text, nullable=False)
+    event_slug: Mapped[str] = mapped_column(Text, nullable=False)
+    added_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+    )
+
+    group: Mapped[TrackedGroup] = relationship(back_populates="group_events")
+    markets: Mapped[list["TrackedGroupMarket"]] = relationship(
+        back_populates="group_event",
+        cascade="all, delete-orphan",
+    )
+
+    __table_args__ = (
+        Index("idx_tracked_group_events_group", "group_id"),
+    )
+
+
+class TrackedGroupMarket(Base):
+    __tablename__ = "tracked_group_markets"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    group_id: Mapped[int] = mapped_column(
+        BigInteger,
+        ForeignKey("tracked_groups.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    group_event_id: Mapped[int | None] = mapped_column(
+        BigInteger,
+        ForeignKey("tracked_group_events.id", ondelete="CASCADE"),
+        nullable=True,
+    )
+    market_id: Mapped[int] = mapped_column(
+        BigInteger,
+        ForeignKey("markets.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    role_label: Mapped[str] = mapped_column(Text, nullable=False)
+    outcome_side: Mapped[str] = mapped_column(
+        Text,
+        nullable=False,
+        default="yes",
+        server_default=text("'yes'"),
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+    )
+
+    group: Mapped[TrackedGroup] = relationship(back_populates="markets")
+    group_event: Mapped[TrackedGroupEvent | None] = relationship(back_populates="markets")
+    market: Mapped[Market] = relationship()
+
+    __table_args__ = (
+        Index("idx_tracked_group_markets_group", "group_id"),
+        Index("idx_tracked_group_markets_market", "market_id"),
+        Index("idx_tracked_group_markets_group_event", "group_event_id"),
+    )
+
+
+class TrackedGroupRelation(Base):
+    __tablename__ = "tracked_group_relations"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    group_id: Mapped[int] = mapped_column(
+        BigInteger,
+        ForeignKey("tracked_groups.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    relation_type: Mapped[str] = mapped_column(Text, nullable=False)
+    definition: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+    )
+
+    group: Mapped[TrackedGroup] = relationship(back_populates="relations")
+
+    __table_args__ = (Index("idx_tracked_group_relations_group", "group_id"),)
+
+
+class TrackedGroupSnapshot(Base):
+    __tablename__ = "tracked_group_snapshots"
+
+    group_id: Mapped[int] = mapped_column(
+        BigInteger,
+        ForeignKey("tracked_groups.id", ondelete="CASCADE"),
+        primary_key=True,
+    )
+    snapshot_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        primary_key=True,
+    )
+    calculated_metrics: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False)
+
+    group: Mapped[TrackedGroup] = relationship(back_populates="snapshots")
+
+    __table_args__ = (
+        Index(
+            "idx_tracked_group_snapshots_group",
+            "group_id",
+            snapshot_at.desc(),
+        ),
+    )

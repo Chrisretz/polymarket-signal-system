@@ -68,7 +68,7 @@ else:
 
 st.markdown(
     """
-Brug sidemenuen til **Signaler**, **Positioner**, **Journal** og **Performance**.
+Brug sidemenuen til **Signaler**, **Positioner**, **Journal**, **Performance** og **Tracked Groups**.
 
 Se **PROGRESS.md** i projektroden for uge-status.
     """,

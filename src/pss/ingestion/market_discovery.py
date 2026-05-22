@@ -93,6 +93,20 @@ def _parse_end_date(raw: Any) -> datetime | None:
     return datetime.fromisoformat(raw.replace("Z", "+00:00"))
 
 
+def _extract_event_id(market: dict[str, Any]) -> str | None:
+    """Gamma bruger eventId sjældent; events[].id er den stabile join-key."""
+    event_id = market.get("eventId")
+    if event_id is not None:
+        return str(event_id)
+
+    events = market.get("events") or []
+    if events and isinstance(events[0], dict):
+        nested_id = events[0].get("id")
+        if nested_id is not None:
+            return str(nested_id)
+    return None
+
+
 def _market_values(m: dict[str, Any]) -> dict[str, Any] | None:
     """Map Gamma API-marked til DB-række; None hvis markedet skal springes over."""
     condition_id = m.get("conditionId")
@@ -108,7 +122,7 @@ def _market_values(m: dict[str, Any]) -> dict[str, Any] | None:
         "description": m.get("description"),
         "slug": m.get("slug"),
         "category": m.get("category"),
-        "event_id": m.get("eventId"),
+        "event_id": _extract_event_id(m),
         "yes_token_id": clob_tokens[0],
         "no_token_id": clob_tokens[1],
         "end_date": _parse_end_date(m.get("endDate")),

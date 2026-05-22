@@ -20,12 +20,18 @@ EXPECTED_TABLES = (
     "decisions_journal",
     "performance_daily",
     "news_events",
+    "tracked_groups",
+    "tracked_group_events",
+    "tracked_group_markets",
+    "tracked_group_relations",
+    "tracked_group_snapshots",
 )
 
 EXPECTED_HYPERTABLES = (
     "market_snapshots",
     "orderbook_depth",
     "event_snapshots",
+    "tracked_group_snapshots",
 )
 
 

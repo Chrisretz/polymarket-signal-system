@@ -7,7 +7,9 @@ Modules:
 """
 
 from pss.events.discovery import discover_events
+from pss.events.snapshot import snapshot_events
 
 __all__ = [
     "discover_events",
+    "snapshot_events",
 ]

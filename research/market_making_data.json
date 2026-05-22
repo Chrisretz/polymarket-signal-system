@@ -1,0 +1,612 @@
+{
+  "summary": {
+    "generated_at": "2026-05-21T13:54:52.304886+00:00",
+    "n_analyzed": 20,
+    "n_strict_candidates": 0,
+    "n_candidates": 5,
+    "total_net_pnl_usd": -41954.931391647246,
+    "positive_markets": 1,
+    "conclusion": "**0 markeder** opfylder strict kriterier (spread \u226510pp, 2\u20135 trades/d). Bedste observerede spreads: 0\u20134pp (tomme CLOB books). Simuleret net PnL p\u00e5 5 bedste-effort markeder: **$-41954.93** (1/5 positive). Spread capture d\u00e6kker ikke gas + inventory risk. **Retail market making er ikke levedygtig** p\u00e5 Polymarket."
+  },
+  "flows": [
+    {
+      "market_id": 5390,
+      "condition_id": "0x5e082f0b57f47a29044aa35b4c5658393122e659d5feae521c06b57cdd7f905c",
+      "yes_token_id": "113379839734351069617987084078322474966003108854908079701423911002443710490196",
+      "question": "Will 1 Fed rate cut happen in 2026?",
+      "end_date": "2026-12-31T00:00:00+00:00",
+      "days_observed": 34,
+      "avg_daily_volume": 4857.6483333333335,
+      "est_trades_per_day": 50.0,
+      "median_trade_size": 50.0,
+      "median_spread_pp": 0.0,
+      "median_inter_trade_min": 28.8,
+      "spread_source": "snapshot_proxy(clob=98pp empty)",
+      "days_to_resolution": 223.0,
+      "trade_size_distribution": {
+        "under_10": 0.53,
+        "10_50": 0.2542857142857143,
+        "50_200": 0.15171428571428572,
+        "over_200": 0.064
+      }
+    },
+    {
+      "market_id": 6244,
+      "condition_id": "0xa792f029046f2c926ee81c7d9802c21a4a651d33cf7e1bf991ba800ae002f59f",
+      "yes_token_id": "72304052873611261335260464672644781804557218671425470569977240802446584805659",
+      "question": "Will inflation reach more than 5% in 2026?",
+      "end_date": "2026-12-31T00:00:00+00:00",
+      "days_observed": 32,
+      "avg_daily_volume": 4419.56,
+      "est_trades_per_day": 50.0,
+      "median_trade_size": 50.0,
+      "median_spread_pp": 1.5000000000000013,
+      "median_inter_trade_min": 28.8,
+      "spread_source": "snapshot_proxy(clob=98pp empty)",
+      "days_to_resolution": 223.0,
+      "trade_size_distribution": {
+        "under_10": 0.5891946992864424,
+        "10_50": 0.1875637104994903,
+        "50_200": 0.14780835881753313,
+        "over_200": 0.07543323139653414
+      }
+    },
+    {
+      "market_id": 12891,
+      "condition_id": "0xf154d470878d214ef528445c15ba77263f59123939362d495d83bbb0ec7a9c43",
+      "yes_token_id": "6423201895857099715024516879531490470748035212793177232686258599334414059969",
+      "question": "Will the ECB announce no change at the June 2026 meeting?",
+      "end_date": "2026-06-11T00:00:00+00:00",
+      "days_observed": 31,
+      "avg_daily_volume": 3342.193333333333,
+      "est_trades_per_day": 40.573099999999975,
+      "median_trade_size": 50.0,
+      "median_spread_pp": 2.9750000000000005,
+      "median_inter_trade_min": 35.49149559683635,
+      "spread_source": "snapshot_proxy(clob=100pp empty)",
+      "days_to_resolution": 20.0,
+      "trade_size_distribution": {
+        "under_10": 0.6626916524701874,
+        "10_50": 0.2282793867120954,
+        "50_200": 0.08858603066439523,
+        "over_200": 0.020442930153321975
+      }
+    },
+    {
+      "market_id": 5250,
+      "condition_id": "0x1ec6f87bc7d6d0976bbaee5883577bc51be4ba5ef7c0127ccd96e9d64136df40",
+      "yes_token_id": "13894524895366006997415301184483786855853683638290113202814526270024185311964",
+      "question": "Will the next UK election be called by June 30, 2026?",
+      "end_date": "2026-06-30T12:00:00+00:00",
+      "days_observed": 33,
+      "avg_daily_volume": 1578.275,
+      "est_trades_per_day": 15.111800000000002,
+      "median_trade_size": 50.0,
+      "median_spread_pp": 0.6249999999999999,
+      "median_inter_trade_min": 95.28977355444088,
+      "spread_source": "snapshot_proxy(clob=100pp empty)",
+      "days_to_resolution": 39.0,
+      "trade_size_distribution": {
+        "under_10": 0.8423127463863338,
+        "10_50": 0.11038107752956636,
+        "50_200": 0.026281208935611037,
+        "over_200": 0.02102496714848883
+      }
+    },
+    {
+      "market_id": 11987,
+      "condition_id": "0x02507350fc2b81c3af36c659a805adbda9b0a81e63a27b29cb273cdd7dbc072e",
+      "yes_token_id": "55196773789328782968626753039325529600928079596441853086940968216494613088200",
+      "question": "Fed rate cut by July 2026 meeting?",
+      "end_date": "2026-06-17T00:00:00+00:00",
+      "days_observed": 33,
+      "avg_daily_volume": 1350.975,
+      "est_trades_per_day": 45.289600000000206,
+      "median_trade_size": 50.0,
+      "median_spread_pp": 0.75,
+      "median_inter_trade_min": 31.795379071574786,
+      "spread_source": "snapshot_proxy(clob=98pp empty)",
+      "days_to_resolution": 26.0,
+      "trade_size_distribution": {
+        "under_10": 0.6567505720823799,
+        "10_50": 0.17848970251716248,
+        "50_200": 0.10526315789473684,
+        "over_200": 0.059496567505720827
+      }
+    },
+    {
+      "market_id": 12881,
+      "condition_id": "0xe2fc1b6f5e644f939e090c42c309a498db86fb3bc20c02f05021ab42f1567de7",
+      "yes_token_id": "29469650881208575284063149396734502517749435563247743727243670416967792421142",
+      "question": "No change in Bank of Japan\u2019s interest rates after the June 2026 meeting?",
+      "end_date": "2026-06-16T00:00:00+00:00",
+      "days_observed": 33,
+      "avg_daily_volume": 1154.3,
+      "est_trades_per_day": 30.7493,
+      "median_trade_size": 50.0,
+      "median_spread_pp": 3.5000000000000004,
+      "median_inter_trade_min": 46.83033434907461,
+      "spread_source": "snapshot_proxy(clob=91pp empty)",
+      "days_to_resolution": 25.0,
+      "trade_size_distribution": {
+        "under_10": 0.5745192307692307,
+        "10_50": 0.28125,
+        "50_200": 0.10336538461538461,
+        "over_200": 0.040865384615384616
+      }
+    },
+    {
+      "market_id": 10450,
+      "condition_id": "0x221e0b7d9646f5a4262509e8c4c856299c422e21571018dcb3d5bd288d70afd0",
+      "yes_token_id": "20406088295148041354511902187460580898649001043708657022935679954014777896442",
+      "question": "Will the Fed Pause\u2013Pause\u2013Pause in the next three decisions (Mar\u2013Apr\u2013Jun)?",
+      "end_date": "2026-06-17T00:00:00+00:00",
+      "days_observed": 31,
+      "avg_daily_volume": 949.725,
+      "est_trades_per_day": 28.153499999999987,
+      "median_trade_size": 50.0,
+      "median_spread_pp": 0.32500000000000306,
+      "median_inter_trade_min": 51.14816985454742,
+      "spread_source": "snapshot_proxy(clob=100pp empty)",
+      "days_to_resolution": 26.0,
+      "trade_size_distribution": {
+        "under_10": 0.7428330522765598,
+        "10_50": 0.14839797639123103,
+        "50_200": 0.07419898819561552,
+        "over_200": 0.03456998313659359
+      }
+    },
+    {
+      "market_id": 12882,
+      "condition_id": "0xb3237c597bd198f2e5af2d9c2597c71cdda3ab88649a410a917798b3eec8cff4",
+      "yes_token_id": "109766947234377630038218036236758681480305330119718644003616435879479543570431",
+      "question": "Bank of Japan increases interest rates by 25 bps after the June 2026 meeting?",
+      "end_date": "2026-06-16T00:00:00+00:00",
+      "days_observed": 32,
+      "avg_daily_volume": 947.6083333333333,
+      "est_trades_per_day": 34.78959999999999,
+      "median_trade_size": 50.0,
+      "median_spread_pp": 1.5500000000000014,
+      "median_inter_trade_min": 41.39168027226528,
+      "spread_source": "snapshot_proxy(clob=100pp empty)",
+      "days_to_resolution": 25.0,
+      "trade_size_distribution": {
+        "under_10": 0.5988805970149254,
+        "10_50": 0.22014925373134328,
+        "50_200": 0.16044776119402984,
+        "over_200": 0.020522388059701493
+      }
+    },
+    {
+      "market_id": 6243,
+      "condition_id": "0x1f61db83c47fc787f44997af53d517cc4775e813b169d0b8ae2ad3bff316d052",
+      "yes_token_id": "77809380206760496358055332023206786694120788116551923604170177964424180121482",
+      "question": "Will inflation reach more than 4% in 2026?",
+      "end_date": "2026-12-31T00:00:00+00:00",
+      "days_observed": 34,
+      "avg_daily_volume": 877.275,
+      "est_trades_per_day": 22.5749000000002,
+      "median_trade_size": 50.0,
+      "median_spread_pp": 0.15000000000000013,
+      "median_inter_trade_min": 63.78765797412114,
+      "spread_source": "snapshot_proxy(clob=100pp empty)",
+      "days_to_resolution": 223.0,
+      "trade_size_distribution": {
+        "under_10": 0.6152716593245228,
+        "10_50": 0.2090063631913852,
+        "50_200": 0.109642682329907,
+        "over_200": 0.06607929515418502
+      }
+    },
+    {
+      "market_id": 6245,
+      "condition_id": "0xa7abe7ea40a00434c712a8e164a9fd0b2337110659ae1fe7333698d95ef2d657",
+      "yes_token_id": "2994355092890753835421952142336847942524552167232147341214694471416589146406",
+      "question": "Will inflation reach more than 6% in 2026?",
+      "end_date": "2026-12-31T00:00:00+00:00",
+      "days_observed": 34,
+      "avg_daily_volume": 792.9166666666666,
+      "est_trades_per_day": 27.939700000000013,
+      "median_trade_size": 50.0,
+      "median_spread_pp": 3.2499999999999987,
+      "median_inter_trade_min": 51.53956556441191,
+      "spread_source": "snapshot_proxy(clob=98pp empty)",
+      "days_to_resolution": 223.0,
+      "trade_size_distribution": {
+        "under_10": 0.5714285714285714,
+        "10_50": 0.23615160349854228,
+        "50_200": 0.13411078717201166,
+        "over_200": 0.05830903790087463
+      }
+    },
+    {
+      "market_id": 11988,
+      "condition_id": "0xb4022c0b2718eca7ad27195f2d48f06527fa000269d188e1d3001ff8bbc16956",
+      "yes_token_id": "3080129411996805379742751525600597838226998464163037042731747436895624822756",
+      "question": "Fed rate cut by September 2026 meeting?",
+      "end_date": "2026-06-17T00:00:00+00:00",
+      "days_observed": 32,
+      "avg_daily_volume": 714.6666666666666,
+      "est_trades_per_day": 13.145299999999988,
+      "median_trade_size": 50.0,
+      "median_spread_pp": 1.7499999999999996,
+      "median_inter_trade_min": 109.54485633648538,
+      "spread_source": "snapshot_proxy(clob=100pp empty)",
+      "days_to_resolution": 26.0,
+      "trade_size_distribution": {
+        "under_10": 0.4482338611449452,
+        "10_50": 0.14372716199756394,
+        "50_200": 0.341047503045067,
+        "over_200": 0.06699147381242387
+      }
+    },
+    {
+      "market_id": 9319,
+      "condition_id": "0xb81fde30f892e09596d26670fd93da5a113451e197d059b434c2b27bb5c27b09",
+      "yes_token_id": "24200688643010489802979414720922485726083898678543840432899131608248835588689",
+      "question": "Will the upper bound of the target federal funds rate be 1.5% at the end of 2026?",
+      "end_date": "2026-12-09T00:00:00+00:00",
+      "days_observed": 32,
+      "avg_daily_volume": 689.0566666666666,
+      "est_trades_per_day": 41.29339999999996,
+      "median_trade_size": 50.0,
+      "median_spread_pp": 0.0,
+      "median_inter_trade_min": 34.87240091636923,
+      "spread_source": "snapshot_proxy(clob=100pp empty)",
+      "days_to_resolution": 201.0,
+      "trade_size_distribution": {
+        "under_10": 0.6549391069012178,
+        "10_50": 0.2530446549391069,
+        "50_200": 0.03247631935047361,
+        "over_200": 0.05953991880920163
+      }
+    },
+    {
+      "market_id": 6375,
+      "condition_id": "0xaa6145fb75147c5dda9bda894ed80353b14f23149b285893dd41e1edc8c0d4c2",
+      "yes_token_id": "33955188520896833048115959811816549716866192906937688660205174290095294083363",
+      "question": "Will the Fed\u2019s lower bound reach 2.5% or lower before 2027?",
+      "end_date": "2026-12-31T00:00:00+00:00",
+      "days_observed": 32,
+      "avg_daily_volume": 682.54,
+      "est_trades_per_day": 26.824400000000022,
+      "median_trade_size": 50.0,
+      "median_spread_pp": 0.37500000000000033,
+      "median_inter_trade_min": 53.68246820059345,
+      "spread_source": "snapshot_proxy(clob=100pp empty)",
+      "days_to_resolution": 223.0,
+      "trade_size_distribution": {
+        "under_10": 0.6491071428571429,
+        "10_50": 0.18660714285714286,
+        "50_200": 0.09910714285714285,
+        "over_200": 0.06517857142857143
+      }
+    },
+    {
+      "market_id": 8022,
+      "condition_id": "0x4d162a40c3e3f458b0e0017485d7f9e6ead0cdd0573e38b26e0d5420525ccfa4",
+      "yes_token_id": "36209573008978970585450419316941249216001556298548579804182609641681769351835",
+      "question": "Fed rate cut by June 2026 meeting?",
+      "end_date": "2026-06-17T00:00:00+00:00",
+      "days_observed": 31,
+      "avg_daily_volume": 675.0966666666667,
+      "est_trades_per_day": 18.012399999999907,
+      "median_trade_size": 50.0,
+      "median_spread_pp": 0.32500000000000007,
+      "median_inter_trade_min": 79.94492682818544,
+      "spread_source": "snapshot_proxy(clob=100pp empty)",
+      "days_to_resolution": 26.0,
+      "trade_size_distribution": {
+        "under_10": 0.6816568047337278,
+        "10_50": 0.1767258382642998,
+        "50_200": 0.0844181459566075,
+        "over_200": 0.05719921104536489
+      }
+    },
+    {
+      "market_id": 10451,
+      "condition_id": "0x92410744b32432595f784c83740ecef014ff508e8c56c8152405c6d64880ac00",
+      "yes_token_id": "9106841399565668097754635565572608293984750882512719667140275999306542945431",
+      "question": "Will the Fed Pause\u2013Pause\u2013Cut in the next three decisions (Mar\u2013Apr\u2013Jun)?",
+      "end_date": "2026-06-17T00:00:00+00:00",
+      "days_observed": 34,
+      "avg_daily_volume": 597.04,
+      "est_trades_per_day": 20.265,
+      "median_trade_size": 50.0,
+      "median_spread_pp": 0.25000000000000006,
+      "median_inter_trade_min": 71.05847520355292,
+      "spread_source": "snapshot_proxy(clob=100pp empty)",
+      "days_to_resolution": 26.0,
+      "trade_size_distribution": {
+        "under_10": 0.6622418879056047,
+        "10_50": 0.2448377581120944,
+        "50_200": 0.08259587020648967,
+        "over_200": 0.01032448377581121
+      }
+    },
+    {
+      "market_id": 11990,
+      "condition_id": "0xc60022fe066abd6f96c375adb09f38d92c4931f09c10b805354581b4e5465e93",
+      "yes_token_id": "85002355202646770038788297383084634166875614093071220064343011133051368772502",
+      "question": "Fed rate cut by December 2026 meeting?",
+      "end_date": "2026-06-17T00:00:00+00:00",
+      "days_observed": 32,
+      "avg_daily_volume": 587.755,
+      "est_trades_per_day": 22.648499999999913,
+      "median_trade_size": 50.0,
+      "median_spread_pp": 1.4999999999999987,
+      "median_inter_trade_min": 63.58036956089832,
+      "spread_source": "snapshot_proxy(clob=98pp empty)",
+      "days_to_resolution": 26.0,
+      "trade_size_distribution": {
+        "under_10": 0.5920398009950248,
+        "10_50": 0.25,
+        "50_200": 0.09577114427860696,
+        "over_200": 0.06218905472636816
+      }
+    },
+    {
+      "market_id": 10452,
+      "condition_id": "0x982460624c93de97715ff5323897965b42c7e20ea01daeaad98e6833241d0612",
+      "yes_token_id": "90631099197646298010686278758638830677511348789573382559691100611630246199664",
+      "question": "Will the Fed decide differently in the next three decisions (Mar\u2013Apr\u2013Jun)?",
+      "end_date": "2026-06-17T00:00:00+00:00",
+      "days_observed": 31,
+      "avg_daily_volume": 575.2166666666667,
+      "est_trades_per_day": 17.94209999999992,
+      "median_trade_size": 50.0,
+      "median_spread_pp": 0.375,
+      "median_inter_trade_min": 80.25816376009534,
+      "spread_source": "snapshot_proxy(clob=100pp empty)",
+      "days_to_resolution": 26.0,
+      "trade_size_distribution": {
+        "under_10": 0.5465498357064622,
+        "10_50": 0.18619934282584885,
+        "50_200": 0.14786418400876233,
+        "over_200": 0.11938663745892661
+      }
+    },
+    {
+      "market_id": 12883,
+      "condition_id": "0xd175952df3f4312096d408a699c922af54d31b17b8d22afb35e8f09016053de9",
+      "yes_token_id": "61477801831524798796089965987254934417243412974006147429148311989757827359597",
+      "question": "Bank of Japan increases interest rates by 50+ bps after the June 2026 meeting?",
+      "end_date": "2026-06-16T00:00:00+00:00",
+      "days_observed": 31,
+      "avg_daily_volume": 520.175,
+      "est_trades_per_day": 10.101399999999995,
+      "median_trade_size": 50.0,
+      "median_spread_pp": 0.49999999999999994,
+      "median_inter_trade_min": 142.55449739640056,
+      "spread_source": "snapshot_proxy(clob=100pp empty)",
+      "days_to_resolution": 25.0,
+      "trade_size_distribution": {
+        "under_10": 0.5758620689655173,
+        "10_50": 0.2689655172413793,
+        "50_200": 0.12413793103448276,
+        "over_200": 0.03103448275862069
+      }
+    },
+    {
+      "market_id": 6371,
+      "condition_id": "0x4e15f0f425d28b87024ba9f19504e074da257e3d231d3222618a67c5c0f600ba",
+      "yes_token_id": "114143552232719777271227815999686326483032207634989652712593588125140631174786",
+      "question": "Will the Fed\u2019s lower bound reach 0.5% or lower before 2027?",
+      "end_date": "2026-12-31T00:00:00+00:00",
+      "days_observed": 31,
+      "avg_daily_volume": 454.745,
+      "est_trades_per_day": 50.0,
+      "median_trade_size": 50.0,
+      "median_spread_pp": 0.20000000000000018,
+      "median_inter_trade_min": 28.8,
+      "spread_source": "snapshot_proxy(clob=100pp empty)",
+      "days_to_resolution": 223.0,
+      "trade_size_distribution": {
+        "under_10": 0.5259259259259259,
+        "10_50": 0.07407407407407407,
+        "50_200": 0.1814814814814815,
+        "over_200": 0.21851851851851853
+      }
+    },
+    {
+      "market_id": 12880,
+      "condition_id": "0xba7ce27f7204f5813d992cd3d71c72cc8138268041b2a80d52109f0a13b77a4f",
+      "yes_token_id": "43446027699535965197399294732468106947282199975274958605357934670442053353252",
+      "question": "Bank of Japan decreases interest rates after the June 2026 meeting?",
+      "end_date": "2026-06-16T00:00:00+00:00",
+      "days_observed": 33,
+      "avg_daily_volume": 403.31,
+      "est_trades_per_day": 21.148099999999978,
+      "median_trade_size": 50.0,
+      "median_spread_pp": 0.04999999999999996,
+      "median_inter_trade_min": 68.0912233250269,
+      "spread_source": "snapshot_proxy(clob=100pp empty)",
+      "days_to_resolution": 25.0,
+      "trade_size_distribution": {
+        "under_10": 0.5368098159509203,
+        "10_50": 0.22699386503067484,
+        "50_200": 0.15030674846625766,
+        "over_200": 0.08588957055214724
+      }
+    }
+  ],
+  "top5": [
+    {
+      "market_id": 12881,
+      "condition_id": "0xe2fc1b6f5e644f939e090c42c309a498db86fb3bc20c02f05021ab42f1567de7",
+      "yes_token_id": "29469650881208575284063149396734502517749435563247743727243670416967792421142",
+      "question": "No change in Bank of Japan\u2019s interest rates after the June 2026 meeting?",
+      "end_date": "2026-06-16T00:00:00+00:00",
+      "days_observed": 33,
+      "avg_daily_volume": 1154.3,
+      "est_trades_per_day": 30.7493,
+      "median_trade_size": 50.0,
+      "median_spread_pp": 3.5000000000000004,
+      "median_inter_trade_min": 46.83033434907461,
+      "spread_source": "snapshot_proxy(clob=91pp empty)",
+      "days_to_resolution": 25.0,
+      "trade_size_distribution": {
+        "under_10": 0.5745192307692307,
+        "10_50": 0.28125,
+        "50_200": 0.10336538461538461,
+        "over_200": 0.040865384615384616
+      }
+    },
+    {
+      "market_id": 6245,
+      "condition_id": "0xa7abe7ea40a00434c712a8e164a9fd0b2337110659ae1fe7333698d95ef2d657",
+      "yes_token_id": "2994355092890753835421952142336847942524552167232147341214694471416589146406",
+      "question": "Will inflation reach more than 6% in 2026?",
+      "end_date": "2026-12-31T00:00:00+00:00",
+      "days_observed": 34,
+      "avg_daily_volume": 792.9166666666666,
+      "est_trades_per_day": 27.939700000000013,
+      "median_trade_size": 50.0,
+      "median_spread_pp": 3.2499999999999987,
+      "median_inter_trade_min": 51.53956556441191,
+      "spread_source": "snapshot_proxy(clob=98pp empty)",
+      "days_to_resolution": 223.0,
+      "trade_size_distribution": {
+        "under_10": 0.5714285714285714,
+        "10_50": 0.23615160349854228,
+        "50_200": 0.13411078717201166,
+        "over_200": 0.05830903790087463
+      }
+    },
+    {
+      "market_id": 12891,
+      "condition_id": "0xf154d470878d214ef528445c15ba77263f59123939362d495d83bbb0ec7a9c43",
+      "yes_token_id": "6423201895857099715024516879531490470748035212793177232686258599334414059969",
+      "question": "Will the ECB announce no change at the June 2026 meeting?",
+      "end_date": "2026-06-11T00:00:00+00:00",
+      "days_observed": 31,
+      "avg_daily_volume": 3342.193333333333,
+      "est_trades_per_day": 40.573099999999975,
+      "median_trade_size": 50.0,
+      "median_spread_pp": 2.9750000000000005,
+      "median_inter_trade_min": 35.49149559683635,
+      "spread_source": "snapshot_proxy(clob=100pp empty)",
+      "days_to_resolution": 20.0,
+      "trade_size_distribution": {
+        "under_10": 0.6626916524701874,
+        "10_50": 0.2282793867120954,
+        "50_200": 0.08858603066439523,
+        "over_200": 0.020442930153321975
+      }
+    },
+    {
+      "market_id": 11988,
+      "condition_id": "0xb4022c0b2718eca7ad27195f2d48f06527fa000269d188e1d3001ff8bbc16956",
+      "yes_token_id": "3080129411996805379742751525600597838226998464163037042731747436895624822756",
+      "question": "Fed rate cut by September 2026 meeting?",
+      "end_date": "2026-06-17T00:00:00+00:00",
+      "days_observed": 32,
+      "avg_daily_volume": 714.6666666666666,
+      "est_trades_per_day": 13.145299999999988,
+      "median_trade_size": 50.0,
+      "median_spread_pp": 1.7499999999999996,
+      "median_inter_trade_min": 109.54485633648538,
+      "spread_source": "snapshot_proxy(clob=100pp empty)",
+      "days_to_resolution": 26.0,
+      "trade_size_distribution": {
+        "under_10": 0.4482338611449452,
+        "10_50": 0.14372716199756394,
+        "50_200": 0.341047503045067,
+        "over_200": 0.06699147381242387
+      }
+    },
+    {
+      "market_id": 12882,
+      "condition_id": "0xb3237c597bd198f2e5af2d9c2597c71cdda3ab88649a410a917798b3eec8cff4",
+      "yes_token_id": "109766947234377630038218036236758681480305330119718644003616435879479543570431",
+      "question": "Bank of Japan increases interest rates by 25 bps after the June 2026 meeting?",
+      "end_date": "2026-06-16T00:00:00+00:00",
+      "days_observed": 32,
+      "avg_daily_volume": 947.6083333333333,
+      "est_trades_per_day": 34.78959999999999,
+      "median_trade_size": 50.0,
+      "median_spread_pp": 1.5500000000000014,
+      "median_inter_trade_min": 41.39168027226528,
+      "spread_source": "snapshot_proxy(clob=100pp empty)",
+      "days_to_resolution": 25.0,
+      "trade_size_distribution": {
+        "under_10": 0.5988805970149254,
+        "10_50": 0.22014925373134328,
+        "50_200": 0.16044776119402984,
+        "over_200": 0.020522388059701493
+      }
+    }
+  ],
+  "backtests": [
+    {
+      "market_id": 12881,
+      "question": "No change in Bank of Japan\u2019s interest rates after the June 2026 meeting?",
+      "simulated_fills": 1258,
+      "round_trips": 0,
+      "spread_pnl_usd": 0.0,
+      "inventory_pnl_usd": 21588.6057009339,
+      "total_pnl_usd": 21588.6057009339,
+      "gas_cost_usd": 47.52,
+      "net_pnl_usd": 21541.085700933898,
+      "max_inventory_usd": 70919.80690489973,
+      "resolution_risk_usd": 70919.80690489973,
+      "notes": "spread=3.5pp fills=1258"
+    },
+    {
+      "market_id": 6245,
+      "question": "Will inflation reach more than 6% in 2026?",
+      "simulated_fills": 1661,
+      "round_trips": 0,
+      "spread_pnl_usd": 0.0,
+      "inventory_pnl_usd": -36985.90904667741,
+      "total_pnl_usd": -36985.90904667741,
+      "gas_cost_usd": 48.96,
+      "net_pnl_usd": -37034.869046677406,
+      "max_inventory_usd": 220250.8997431021,
+      "resolution_risk_usd": 220250.8997431021,
+      "notes": "spread=3.2pp fills=1661"
+    },
+    {
+      "market_id": 12891,
+      "question": "Will the ECB announce no change at the June 2026 meeting?",
+      "simulated_fills": 2477,
+      "round_trips": 0,
+      "spread_pnl_usd": 0.0,
+      "inventory_pnl_usd": -9835.24283364114,
+      "total_pnl_usd": -9835.24283364114,
+      "gas_cost_usd": 44.64,
+      "net_pnl_usd": -9879.882833641139,
+      "max_inventory_usd": 135099.47787460327,
+      "resolution_risk_usd": 135099.47787460327,
+      "notes": "spread=3.0pp fills=2477"
+    },
+    {
+      "market_id": 11988,
+      "question": "Fed rate cut by September 2026 meeting?",
+      "simulated_fills": 3824,
+      "round_trips": 0,
+      "spread_pnl_usd": 0.0,
+      "inventory_pnl_usd": -12289.152022117516,
+      "total_pnl_usd": -12289.152022117516,
+      "gas_cost_usd": 46.08,
+      "net_pnl_usd": -12335.232022117516,
+      "max_inventory_usd": 318872.05892642634,
+      "resolution_risk_usd": 318872.05892642634,
+      "notes": "spread=1.7pp fills=3824"
+    },
+    {
+      "market_id": 12882,
+      "question": "Bank of Japan increases interest rates by 25 bps after the June 2026 meeting?",
+      "simulated_fills": 1229,
+      "round_trips": 0,
+      "spread_pnl_usd": 0.0,
+      "inventory_pnl_usd": -4199.953190145083,
+      "total_pnl_usd": -4199.953190145083,
+      "gas_cost_usd": 46.08,
+      "net_pnl_usd": -4246.033190145083,
+      "max_inventory_usd": 63705.26735439707,
+      "resolution_risk_usd": 63705.26735439707,
+      "notes": "spread=1.6pp fills=1229"
+    }
+  ]
+}

@@ -30,7 +30,7 @@ class GammaClient:
         )
         self._semaphore = asyncio.Semaphore(5)
         self._last_request_at: float = 0.0
-        self._min_interval = 2.0
+        self._min_interval = 1.05  # ~57 req/min — under Gamma 60/min cap
 
     async def close(self) -> None:
         await self._client.aclose()
@@ -103,6 +103,86 @@ class GammaClient:
         if isinstance(result, dict):
             return result
         return {}
+
+    async def get_market_by_slug(self, slug: str) -> dict[str, Any]:
+        """Henter marked via Gamma slug (fx fra Polymarket URL)."""
+        result = await self._get(f"/markets/slug/{slug}")
+        if isinstance(result, dict):
+            return result
+        return {}
+
+    async def get_event_by_slug(self, slug: str) -> dict[str, Any]:
+        """Henter event inkl. underliggende markeder."""
+        try:
+            result = await self._get(f"/events/slug/{slug}")
+        except httpx.HTTPStatusError as exc:
+            if exc.response.status_code == 404:
+                return {}
+            raise
+        if isinstance(result, dict):
+            return result
+        return {}
+
+    async def get_event_by_id(self, event_id: str) -> dict[str, Any]:
+        """Henter event via numerisk id."""
+        try:
+            result = await self._get(f"/events/{event_id}")
+        except httpx.HTTPStatusError as exc:
+            if exc.response.status_code == 404:
+                return {}
+            raise
+        if isinstance(result, dict):
+            return result
+        return {}
+
+    async def list_events_by_slug(self, slug: str) -> list[dict[str, Any]]:
+        """Fallback: GET /events?slug=…"""
+        data = await self._get("/events", {"slug": slug, "limit": 1})
+        if isinstance(data, list):
+            return data
+        if isinstance(data, dict):
+            return data.get("data", []) or []
+        return []
+
+    async def get_markets_by_condition_ids(
+        self,
+        condition_ids: list[str],
+    ) -> dict[str, dict[str, Any]]:
+        """Batch-hent markeder; returnerer condition_id → gamma payload."""
+        if not condition_ids:
+            return {}
+        unique = list(dict.fromkeys(condition_ids))
+        out: dict[str, dict[str, Any]] = {}
+        # Gamma accepterer kun én condition_id pr. request (comma-liste returnerer tom)
+        for cid in unique:
+            data = await self._get(
+                "/markets",
+                {"condition_ids": cid, "limit": 1},
+            )
+            rows = data if isinstance(data, list) else data.get("data", []) if isinstance(data, dict) else []
+            for row in rows:
+                row_cid = row.get("conditionId") or row.get("condition_id")
+                if row_cid:
+                    out[row_cid] = row
+        return out
+
+    async def get_markets_by_slugs(
+        self,
+        slugs: list[str],
+    ) -> dict[str, dict[str, Any]]:
+        """Hent markeder via slug; returnerer slug → gamma payload."""
+        if not slugs:
+            return {}
+        unique = list(dict.fromkeys(s for s in slugs if s))
+        out: dict[str, dict[str, Any]] = {}
+        for slug in unique:
+            try:
+                row = await self.get_market_by_slug(slug)
+            except httpx.HTTPStatusError:
+                continue
+            if row:
+                out[slug] = row
+        return out
 
     async def iter_active_market_pages(
         self,

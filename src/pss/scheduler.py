@@ -16,6 +16,8 @@ from pss.ingestion.market_discovery import discover_markets
 from pss.ingestion.price_snapshot import snapshot_all_active_markets
 from pss.logging_config import configure_logging
 from pss.signals.pipeline import run_signal_pipeline
+from pss.tracking.alerts import process_snapshot_alerts
+from pss.tracking.snapshot import snapshot_all_active_groups
 
 logger = structlog.get_logger(__name__)
 
@@ -64,6 +66,23 @@ async def _run_signal_scan() -> None:
     )
 
 
+async def _run_tracked_group_snapshot() -> None:
+    logger.info("job_started", job="tracked_group_snapshot")
+    try:
+        run = await snapshot_all_active_groups()
+        alerts = await process_snapshot_alerts(run, notify_telegram=True)
+    except Exception:
+        logger.exception("job_failed", job="tracked_group_snapshot")
+        raise
+    logger.info(
+        "job_finished",
+        job="tracked_group_snapshot",
+        groups=run.groups_processed,
+        snapshots=run.snapshots_written,
+        alerts_sent=sum(1 for a in alerts if a.sent),
+    )
+
+
 def setup_scheduler(*, run_immediately: bool = True) -> AsyncIOScheduler:
     """Registrér ingestion-jobs."""
     scheduler = AsyncIOScheduler(timezone="UTC")
@@ -71,10 +90,12 @@ def setup_scheduler(*, run_immediately: bool = True) -> AsyncIOScheduler:
     discovery_start = now
     snapshot_start = now
     signal_start = now
+    tracked_start = now
     if now and settings.is_production:
         discovery_start = now + timedelta(seconds=45)
         snapshot_start = now + timedelta(minutes=5)
         signal_start = now + timedelta(minutes=15)
+        tracked_start = now + timedelta(seconds=30)
 
     scheduler.add_job(
         _run_market_discovery,
@@ -106,6 +127,16 @@ def setup_scheduler(*, run_immediately: bool = True) -> AsyncIOScheduler:
         next_run_time=signal_start,
     )
 
+    scheduler.add_job(
+        _run_tracked_group_snapshot,
+        trigger=IntervalTrigger(minutes=settings.tracked_group_snapshot_interval_minutes),
+        id="tracked_group_snapshot",
+        name="Snapshot tracked market groups",
+        max_instances=1,
+        coalesce=True,
+        next_run_time=tracked_start,
+    )
+
     return scheduler
 
 
@@ -122,6 +153,7 @@ async def _run_scheduler_loop() -> None:
     print(
         "PSS scheduler kører (UTC). "
         "Discovery: hver time. Snapshots: hver 10. min. "
+        f"Tracked groups: hver {settings.tracked_group_snapshot_interval_minutes}. min. "
         "Signal-scan: hver time.",
         flush=True,
     )

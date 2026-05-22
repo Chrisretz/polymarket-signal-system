@@ -80,6 +80,11 @@ class Settings(BaseSettings):
     bankroll_usd: float = 10_000.0
     database_ssl_insecure: bool = False
 
+    # Tracked groups
+    tracked_group_alert_threshold_pp: float = 3.0
+    tracked_group_alert_cooldown_minutes: int = 15
+    tracked_group_snapshot_interval_minutes: int = 1
+
     @model_validator(mode="after")
     def normalize_database_urls(self) -> Self:
         """Railway/Timescale leverer ofte postgres:// — normalisér drivere + SSL."""

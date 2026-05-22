@@ -11,6 +11,11 @@ from pss.db.models import (
     PerformanceDaily,
     Position,
     Signal,
+    TrackedGroup,
+    TrackedGroupEvent,
+    TrackedGroupMarket,
+    TrackedGroupRelation,
+    TrackedGroupSnapshot,
 )
 from pss.db.session import AsyncSessionLocal, engine, get_async_session
 
@@ -26,6 +31,11 @@ __all__ = [
     "PerformanceDaily",
     "Position",
     "Signal",
+    "TrackedGroup",
+    "TrackedGroupEvent",
+    "TrackedGroupMarket",
+    "TrackedGroupRelation",
+    "TrackedGroupSnapshot",
     "engine",
     "get_async_session",
 ]
